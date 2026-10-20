@@ -1,0 +1,16 @@
+/devpost/learner-profile.md
+.env
+.env.*
+!.env.example
+
+# Local scratch, personal audit and unapproved reference media
+/tmp/
+/outputs/*
+!/outputs/ui-interaction-spec.md
+!/outputs/skill-pack-installation-2026-10-19.md
+.DS_Store
+node_modules/
+dist/
+
+# Separately created GitHub Desktop checkout; leave untouched
+/visualyrc-sketch/
