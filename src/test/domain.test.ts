@@ -1,9 +1,89 @@
-import {describe,it,expect} from 'vitest';
-import {createProject,postText,place,revise,link,removeContent,removePage,validateProject,uid} from '../domain/model';
-describe('canonical content invariants',()=>{
- it('shares edits across references and preserves independent layout',()=>{let p=postText(createProject(),'hello');const id=p.nodes[0].id;p=place(p,id,p.pages[0].id);p=place(p,id,p.pages[0].id,500,400);p=revise(p,n=>{const a=n.nodes[0];if(a.kind==='text')a.text='edited';n.placements[0].x=700;});expect(p.nodes).toHaveLength(1);expect(p.placements[1].x).toBe(500);expect(p.posts[0].nodeId).toBe(id);expect(p.nodes[0].kind==='text'&&p.nodes[0].text).toBe('edited');});
- it('page deletion retains canonical content, posts and edges',()=>{let p=postText(postText(createProject(),'a'),'b');p=place(p,p.nodes[0].id,p.pages[0].id);p=link(p,p.nodes[0].id,p.nodes[1].id);const old=p.pages[0].id;p=revise(p,n=>n.pages.push({id:uid(),title:'Second',order:1}));p=removePage(p,old);expect(p.placements).toHaveLength(0);expect(p.nodes).toHaveLength(2);expect(p.posts).toHaveLength(2);expect(p.edges).toHaveLength(1);});
- it('full deletion removes incident edges and references only',()=>{let p=postText(postText(createProject(),'a'),'b');p=place(p,p.nodes[0].id,p.pages[0].id);p=link(p,p.nodes[0].id,p.nodes[1].id);p=removeContent(p,p.nodes[0].id);expect(p.nodes).toHaveLength(1);expect(p.posts).toHaveLength(1);expect(p.edges).toHaveLength(0);expect(p.placements).toHaveLength(0);});
- it('rejects self links, duplicate undirected links, broken refs and empty text',()=>{let p=postText(postText(createProject(),'a'),'b');expect(()=>postText(p,'  ')).toThrow();expect(()=>link(p,p.nodes[0].id,p.nodes[0].id)).toThrow();p=link(p,p.nodes[0].id,p.nodes[1].id);expect(()=>link(p,p.nodes[1].id,p.nodes[0].id)).toThrow();expect(()=>place(p,uid(),p.pages[0].id)).toThrow();expect(()=>validateProject({...p,nodes:[]})).toThrow();});
- it('rejects invalid/overlapping audio ranges',()=>{const p=createProject(),a=uid();expect(()=>revise(p,n=>{n.activeAudioId=a;n.pages[0].audioRange={assetId:a,start:4,end:2};})).toThrow();expect(()=>revise(p,n=>{n.activeAudioId=a;n.pages[0].audioRange={assetId:a,start:0,end:4};n.pages.push({id:uid(),title:'Other',order:1,audioRange:{assetId:a,start:3,end:8}});})).toThrow();});
+import { describe, it, expect } from "vitest";
+import {
+  createProject,
+  postText,
+  place,
+  revise,
+  link,
+  removeContent,
+  removePage,
+  validateProject,
+  uid,
+} from "../domain/model";
+describe("canonical content invariants", () => {
+  it("shares edits across references and preserves independent layout", () => {
+    let p = postText(createProject(), "hello");
+    const id = p.nodes[0].id;
+    p = place(p, id, p.pages[0].id);
+    p = place(p, id, p.pages[0].id, 500, 400);
+    p = revise(p, (n) => {
+      const a = n.nodes[0];
+      if (a.kind === "text") a.text = "edited";
+      n.placements[0].x = 700;
+    });
+    expect(p.nodes).toHaveLength(1);
+    expect(p.placements[1].x).toBe(500);
+    expect(p.posts[0].nodeId).toBe(id);
+    expect(p.nodes[0].kind === "text" && p.nodes[0].text).toBe("edited");
+  });
+  it("page deletion retains canonical content, posts and edges", () => {
+    let p = postText(postText(createProject(), "a"), "b");
+    p = place(p, p.nodes[0].id, p.pages[0].id);
+    p = link(p, p.nodes[0].id, p.nodes[1].id);
+    const old = p.pages[0].id;
+    p = revise(p, (n) =>
+      n.pages.push({ id: uid(), title: "Second", order: 1 }),
+    );
+    p = removePage(p, old);
+    expect(p.placements).toHaveLength(0);
+    expect(p.nodes).toHaveLength(2);
+    expect(p.posts).toHaveLength(2);
+    expect(p.edges).toHaveLength(1);
+  });
+  it("full deletion removes incident edges and references only", () => {
+    let p = postText(postText(createProject(), "a"), "b");
+    p = place(p, p.nodes[0].id, p.pages[0].id);
+    p = link(p, p.nodes[0].id, p.nodes[1].id);
+    p = removeContent(p, p.nodes[0].id);
+    expect(p.nodes).toHaveLength(1);
+    expect(p.posts).toHaveLength(1);
+    expect(p.edges).toHaveLength(0);
+    expect(p.placements).toHaveLength(0);
+  });
+  it("rejects self links, duplicate undirected links, broken refs and empty text", () => {
+    let p = postText(postText(createProject(), "a"), "b");
+    expect(() => postText(p, "  ")).toThrow();
+    expect(() => link(p, p.nodes[0].id, p.nodes[0].id)).toThrow();
+    p = link(p, p.nodes[0].id, p.nodes[1].id);
+    expect(() => link(p, p.nodes[1].id, p.nodes[0].id)).toThrow();
+    expect(() => place(p, uid(), p.pages[0].id)).toThrow();
+    expect(() => validateProject({ ...p, nodes: [] })).toThrow();
+  });
+  it("rejects invalid/overlapping audio ranges", () => {
+    const p = createProject(),
+      a = uid();
+    expect(() =>
+      revise(p, (n) => {
+        n.activeAudioId = a;
+        n.pages[0].audioRange = { assetId: a, start: 4, end: 2 };
+      }),
+    ).toThrow();
+    expect(() =>
+      revise(p, (n) => {
+        n.activeAudioId = a;
+        n.pages[0].audioRange = { assetId: a, start: 0, end: 4 };
+        n.pages.push({
+          id: uid(),
+          title: "Other",
+          order: 1,
+          audioRange: { assetId: a, start: 3, end: 8 },
+        });
+      }),
+    ).toThrow();
+  });
+});
+
+it("rejects project names outside the portable schema at creation", () => {
+  expect(() => createProject("x".repeat(201))).toThrow();
+  expect(createProject("x".repeat(200)).name).toHaveLength(200);
 });
