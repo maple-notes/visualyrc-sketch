@@ -139,7 +139,7 @@ Manifest has format='visualyrc-sketch', formatVersion=1 and asset descriptors.
 Versioned project payload stores normalized records. Blobs are original bytes;
 waveform cache and object URLs are excluded. MIME is validated/decoded, not trusted
 from filename. MVP images PNG/JPEG/WebP; exclude SVG execution and animated formats.
-Archive extension is approved, ZIP contents/limits are not yet approved.
+Archive extension and ZIP container are approved; numeric limits remain provisional.
 
 Provisional guardrails for review: audio ≤50MiB; each image ≤10MiB and ≤24MP;
 archive ≤150MiB compressed and ≤200MiB expanded, ≤1000 entries. These are product
@@ -168,9 +168,12 @@ All project records carry projectId; IDs generated independently, dates ISO stri
 - GraphPosition: projectId,nodeId,x,y. PageViewport: projectId,pageId,x,y,zoom.
 - ProjectView: projectId,lastPageId,mode,sidebarOpen; restore paused audio.
 - WaveformCache: assetId,algorithmVersion,peaks; regeneratable, not archive content.
-Schema v1 includes all tables above in one database; index projectId, pageId,
-nodeId and unique Post/Edge pairs. No separate copies by view. Future migrations
-are explicit and tested. Cross-record referential integrity is enforced in commands.
+Implementation refinement: normalized records above are stored in one project
+document per project in Dexie projects, plus original Blob assets in a separate
+assets table indexed by projectId. Transactions commit document/media together.
+No separate copies by view; commands enforce unique posts/edge pairs and integrity.
+This reduces coordination for the measured 100-node PoC. Split tables only when
+measured write costs warrant it. Future migrations remain explicit and tested.
 Transient state: selection, editor drafts, player state, worker jobs, dirty writes.
 Retain while switching modes, never serialize DOM events/object URLs/React Flow internals.
 Second-tab recommendation uses Web Locks when supported; safe fallback is explicit
