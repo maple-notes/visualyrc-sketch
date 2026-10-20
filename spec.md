@@ -1,5 +1,7 @@
 # Technical Specification — Visualyrc Sketch (draft)
 
+> Historical starter draft. Current review candidate: `devpost/spec.md` (status: draft). Later decisions supersede conflicting text below.
+
 ## Proposed architecture (subject to repository inspection)
 Web SPA, TypeScript. Candidate stack: React + Vite; React Flow / xyflow for graph and possibly canvas; IndexedDB via a thin repository abstraction. Select libraries only after evaluating drag, nested coordinate behavior, license and bundle size. No Electron requirement.
 

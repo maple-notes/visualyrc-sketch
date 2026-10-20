@@ -1,5 +1,7 @@
 # Product Requirements Document — Visualyrc Sketch (draft)
 
+> Historical starter draft. Current review candidate: `devpost/prd.md` (status: draft). Later decisions supersede conflicting text below.
+
 ## Audience and jobs
 Solo creators planning videos, songs, stories, design projects, and other work across multiple boards. They need to capture thoughts instantly, arrange them visually by page, and discover links across pages.
 

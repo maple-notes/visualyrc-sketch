@@ -1,5 +1,7 @@
 # Scope — Visualyrc Sketch hackathon MVP (draft)
 
+> Historical starter draft. Current review candidate: `devpost/scope.md` (status: draft). Later decisions supersede conflicting text below.
+
 ## Problem
 Creative ideas arrive out of order. Conventional whiteboards separate pages, while feeds capture chronology but not spatial relationships. People lose the connection between ideas as they move from collection to arrangement.
 

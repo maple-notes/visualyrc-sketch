@@ -89,3 +89,14 @@ remain technical recommendations pending formal specification; extension
 approval alone does not approve their detailed implementation. App coding
 remains on hold. Future import must identify format and version from contents,
 not trust the extension alone.
+
+## Official planning approved
+
+The user reviewed the 2-scope/3-prd/4-spec drafts and accepted the recommendations:
+full optional audio slice after the shared-content core, ZIP-based .vsketch with
+original assets, page selection independent of seek, and distinct placement/feed/
+canonical-content deletion. All three devpost planning documents are approved.
+Release license, asset rights and hosting remain to be finalized; file limits need
+real-browser verification. User authorized committing and pushing planning changes
+to their existing maple-notes/visualyrc-sketch repository. App implementation has
+not been authorized; 5-build checklist/order review remains next.

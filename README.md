@@ -15,3 +15,11 @@ One project, many independent infinite canvases, a project-wide microblog-style 
 7. `SUBMISSION.md` — contest compliance checklist
 
 **Contest warning:** These planning documents are manually drafted and do **not** prove use of the organizer's mandatory Skill Pack. Run the official pack and preserve its required outputs before submission. Confirm current rules and deadlines directly on Devpost.
+
+## Official planning review candidates
+
+`1-start` is complete; the learner profile stays ignored. At the user's request,
+`devpost/scope.md`, `devpost/prd.md` and `devpost/spec.md` were drafted together
+from prior decisions using the installed official instructions/templates. The user has approved all three (`status: approved`), completing planning steps
+2–4. Carry release decisions and measured media limits into 5-build. Application
+implementation remains on hold. Root scope/PRD/spec are historical starter drafts.
