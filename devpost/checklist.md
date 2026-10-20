@@ -20,7 +20,7 @@ under that instruction. Human feedback/final readiness are still not performed.
   Learner check: Post a note, place on two pages, edit and reload.
   Commit: `feat: shared text workspace with durable reference placements`
 
-- [ ] **2. Images and cross-page Graph are usable**
+- [x] **2. Images and cross-page Graph are usable**
   Becomes usable: Images and cross-page Graph are usable.
   Why now: Extends the verified kernel to visual references and cross-page links.
   PRD ref: `prd.md > Graph Relationships and Navigation`
@@ -30,7 +30,7 @@ under that instruction. Human feedback/final readiness are still not performed.
   Learner check: Place an image, link it to a note and navigate back from Graph.
   Commit: `feat: image references and project-wide graph`
 
-- [ ] **3. Portable project backup restores media**
+- [x] **3. Portable project backup restores media**
   Becomes usable: Portable project backup restores media.
   Why now: Addresses portable media durability before adding audio.
   PRD ref: `prd.md > Local Save and Portable Projects`
@@ -40,7 +40,7 @@ under that instruction. Human feedback/final readiness are still not performed.
   Learner check: Export, import and verify the restored project.
   Commit: `feat: validated portable project archives`
 
-- [ ] **4. Audio drives a vertical section timeline**
+- [x] **4. Audio drives a vertical section timeline**
   Becomes usable: Audio drives a vertical section timeline.
   Why now: Adds the requested audio workflow on proven persistence.
   PRD ref: `prd.md > Optional Audio and Timed Pages`
@@ -50,7 +50,7 @@ under that instruction. Human feedback/final readiness are still not performed.
   Learner check: Load audio, seek, stop and switch sections without unintended seek.
   Commit: `feat: local audio and timed page navigation`
 
-- [ ] **5. Integrated workspace is verified and documented**
+- [x] **5. Integrated workspace is verified and documented**
   Becomes usable: Integrated workspace is verified and documented.
   Why now: Verifies the whole scope and measures actual behavior.
   PRD ref: `prd.md > Workspace and Accessibility`
@@ -70,11 +70,14 @@ under that instruction. Human feedback/final readiness are still not performed.
 ## Code Tour and App Map
 - [ ] Learning activity complete — real performance evidence prepared; learner follow-up pending
 - [ ] Optional edit and transfer reflection addressed
-- [ ] `devpost/app-map.html` generated from finished code, checked and shown
+- [x] `devpost/app-map.html` generated from finished code, local links checked, opened in Codex browser and provided as a take-home link. The panel-open request is queued until this task is shown.
 
-Activity and evidence: pending implementation and measurements.
-Route and stops: pending actual code.
-Edit outcome: not yet offered.
+Activity and evidence: agent-only Codex browser acceptance, 58 passing assertions;
+22 passing unit tests. See verification.md for actual evidence and limits.
+Learner activity has not yet happened.
+Route and stops: reference route prepared: app.tsx composer/run →
+domain/model.ts postText/place → storage/db.ts saveProject. Not toured with learner.
+Edit outcome: optional learner edit has not been offered during absence.
 Reflection: deferred while user away.
 Activity mode: agent browser verification now, learner review later.
 
@@ -88,3 +91,17 @@ Activity mode: agent browser verification now, learner review later.
   table and original media in an assets table. At the 100-node PoC target this
   avoids unnecessary table coordination while preserving Node/Placement identity.
   Revisit only if measured project-write cost warrants separate record tables.
+
+- Slices2–4 were integrated into the initially compilable app, then verified through
+  the real core journey and extra gestures before a consolidated local commit.
+  Their original suggested commit titles are descriptive targets, not fabricated
+  historical commits. Actual commit IDs are recorded in the Git log below.
+- Mechanical slices are complete. Human checkpoints, final review and learning
+  reflection remain unperformed and must not be checked by an unattended agent.
+
+## Actual local commits
+
+- `4ec9daa`: first working shared-text/reference slice.
+- `8e42ae0`: completed image/Graph, archive, audio, recovery and verification tools.
+- This documentation commit: actual report, app map, planning reconciliation and
+  static-hosting handoff. No application push or deployment was performed.

@@ -11,7 +11,8 @@ Browser storage saves content and original media locally without a server/login.
 A `.vsketch` file carries the project to another browser. Optional audio supplies
 playback time and section ranges, without controlling the independent canvas.
 This draft is prepared together with scope/PRD at the user's request. The user subsequently approved scope, PRD and spec. This completes planning
-steps 2–4 but authorizes no application implementation.
+steps 2–4. The user subsequently authorized 5-build and unattended implementation.
+Implementation evidence below is dated 2026-10-20; human final review remains pending.
 
 ## The Core Journey Through the System
 Implements `prd.md > The Core Journey`.
@@ -27,18 +28,18 @@ Audio → save validated original asset → player clock → playhead/section di
 
 ## Stack
 Previously approved direction: React + TypeScript + Vite, React Flow (`@xyflow/react`)
-for Canvas/Graph, Dexie for IndexedDB. No app package.json or dependencies installed.
-Versions, compatibility, actual licenses and bundle size remain unverified in this
-pass; exact versions/lockfile must be verified before approved installation.
+for Canvas/Graph, Dexie for IndexedDB. Installed versions are pinned by package-lock.json.
+Runtime licenses are recorded in THIRD_PARTY_NOTICES.md. Measured build sizes and
+actual browser verification are recorded in devpost/verification.md.
 - React: https://react.dev/learn — shared UI components and reactive views.
 - TypeScript: https://www.typescriptlang.org/docs/ — discriminate content variants.
 - Vite: https://vite.dev/guide/ — local dev/build and static output.
 - React Flow: https://reactflow.dev/learn — viewport/drag primitives; custom nodes.
 - Dexie: https://dexie.org/docs/ — local structured records and transactions.
 - Proposed archive dependency fflate: https://github.com/101arrowz/fflate — ZIP;
-  not selected/installed. Verify license and bounded extraction API before adoption.
-- Proposed verification: Vitest https://vitest.dev/guide/ and Playwright
-  https://playwright.dev/docs/intro, with fake-indexeddb for unit storage tests.
+  installed; bounded streaming extraction, directory checks and CRC are tested.
+- Verification: Vitest with fake-indexeddb; actual browser acceptance runs through
+  Codex in-app browser controls. No standalone browser/runtime download is required.
 - Browser audio/file APIs: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement
   and https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API .
 Links are documentation pointers, not evidence of fresh web verification.
@@ -52,7 +53,7 @@ browser/mobile promise. Use consistent localhost origin for browser persistence.
 Planned Node 22 runtime (confirm Vite requirements), npm lockfile and scripts:
 `npm ci`, `npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`, open
 `http://127.0.0.1:5173`; `npm run build`; `npm run preview -- --host 127.0.0.1 --port 4173 --strictPort`.
-These scripts are a contract to implement, not runnable commands today.
+These scripts now run locally. Use the existing Node 22 runtime; no credentials are needed.
 Dev/preview use different origins and therefore different local databases; use
 `.vsketch` export/import to transfer, never claim missing dev data is deleted.
 No API keys. Public GitHub repo and short recording are submission outputs;
@@ -83,7 +84,9 @@ Implements `prd.md > Capture and Shared Content`, `Removal and Recovery`.
 Validated commands transact Node/Post/Placement/Edge changes. Feed deletion removes
 Post only, placement deletion removes Placement only, explicit full deletion removes
 Node/Posts/Placements/incident Edges atomically. Reject cross-project references.
-Never delete asset Blobs on generic node/page deletion. Asset cleanup is deferred.
+Deleting a placement, feed entry or page keeps canonical content and its media.
+The save transaction reclaims assets only after no canonical content or active
+audio references them; a failed transaction rolls back both document and media.
 
 ### Canvas Adapter
 Implements `prd.md > Pages and Canvas Placements`.
@@ -116,22 +119,23 @@ from Asset Blob, revoke after source replacement/unmount. Validate a candidate
 source before replacing old one. WAV/MP3 initial acceptance only after decode tests.
 Page audio range includes audioAssetId; bounds validated against that asset duration.
 Common transform y=origin+seconds*scale drives ticks, ranges, waveform and playhead.
-Clock comes from currentTime, sampled by requestAnimationFrame only while playing;
+Clock comes from currentTime, sampled every 100ms;
 update player/playhead slice, not all cards or IndexedDB every frame.
 Generate bounded waveform peaks in a Worker using sampled PCM transferred after
 browser decode; decode memory itself remains a risk and needs a real-file probe.
 Use progressive/absent waveform state while generating; playback remains usable.
 Stale worker results carry asset/generation ID and cannot replace newer source.
-Shared timeline scroll, independent Canvas transform. Scope semantics follow PRD
-recommendations until reviewed. Hiding Graph transport does not stop audio;
-provide explicit transport toggle to restore controls.
+Shared timeline scroll, independent Canvas transform. The approved navigation semantics follow the PRD. Graph keeps a compact transport
+when audio is active; switching views does not stop playback. A live IndexedDB
+subscription waits for the audio asset commit before creating its object URL.
 
 ### Storage and Project Archive
 Implements `prd.md > Local Save and Portable Projects`, `States and Boundaries`.
 Dexie transactions are the durable source. Node edit/layout interactions may remain
-optimistic with dirty state, but Saved appears only after successful write. Debounce
-text around 300ms, persist final drag/resize immediately, flush on blur/export/page
-switch. Do not depend on async beforeunload saving. Failed write retains dirty
+optimistic with dirty state, but Saved appears only after successful write. Text
+uses explicit Save/Post actions; persist final drag/resize and keyboard movement
+immediately through a serialized save queue. Export waits for the queue; project
+switching/import are blocked until Saved. Do not depend on async beforeunload saving. Failed write retains dirty
 session with retry/export; leaving warns while dirty where browser supports it.
 
 Proposed `.vsketch` ZIP structure: manifest.json + project.json + assets/<assetId>.
@@ -155,19 +159,20 @@ Export from a consistent transaction snapshot; show size estimate before archive
 creation. Storage quota/large-file probes must pass before these limits are finalized.
 
 ## Data Model
-All project records carry projectId; IDs generated independently, dates ISO strings.
-- Project: id, name, createdAt, updatedAt, activeAudioAssetId?; page order via Page.order.
-- Page: id, projectId, title, order, audioRange? {audioAssetId,startMs,endMs}.
-- Node discriminated union: text {id,projectId,kind:'text',text,createdAt,updatedAt};
-  image {id,projectId,kind:'image',assetId,altText,createdAt,updatedAt}.
-  No 'saezuri' kind, unknown content, url variant or embedded layout fields.
-- Post: id, projectId, nodeId (unique per project/node), postedAt; feed is metadata.
-- Placement: id, projectId,pageId,nodeId,x,y,width,height,zIndex.
-- Edge: id,projectId,sourceNodeId,targetNodeId,relation:'related',pairKey.
-- Asset: id,projectId,kind:'image'|'audio',mime,name,size,blob, dimensions?/durationMs?.
-- GraphPosition: projectId,nodeId,x,y. PageViewport: projectId,pageId,x,y,zoom.
-- ProjectView: projectId,lastPageId,mode,sidebarOpen; restore paused audio.
-- WaveformCache: assetId,algorithmVersion,peaks; regeneratable, not archive content.
+The Project document owns its nested records; nested records need no repeated
+projectId. Asset includes projectId. IDs are UUIDs; timestamps are ISO strings.
+- Project: formatVersion=1, id, name, createdAt, updatedAt, activeAudioId?.
+- Page: id, title, order, audioRange? {assetId,start,end}; time uses seconds.
+- Node: text {id,kind:'text',text,createdAt,updatedAt} or image
+  {id,kind:'image',assetId,altText,createdAt,updatedAt}.
+- Post: id,nodeId,postedAt; one post per canonical Node.
+- Placement: id,pageId,nodeId,x,y,width,height,zIndex.
+- Edge: id,source,target; related is the only relation, with undirected pair
+  uniqueness validated from sorted endpoint IDs. No redundant pair field.
+- Asset: id,projectId,kind,mime,name,blob,width?,height?,duration? in seconds.
+- graph: {nodeId,x,y}[]; viewports: {pageId,x,y,zoom}[].
+- Browser view preference: lastPageId,mode,sidebar; audio restores paused.
+- Waveform: 1200 transient peaks regenerated from the original asset.
 Implementation refinement: normalized records above are stored in one project
 document per project in Dexie projects, plus original Blob assets in a separate
 assets table indexed by projectId. Transactions commit document/media together.
@@ -181,38 +186,28 @@ read-only mode if exclusive ownership cannot be obtained, with no unverified cla
 of cross-browser locking. Exact compatibility is an early technical probe.
 
 ## File Structure
-Planned only; no application files are created in this task.
+Actual structure after the verified build:
 ```text
-src/
-  main.tsx                     # mount app
-  app/App.tsx                  # shell, project/view navigation
-  domain/model.ts              # discriminated records and IDs
-  domain/commands.ts           # validated mutations/deletion rules
-  storage/db.ts                # Dexie schema and transactional repository
-  storage/archive.ts           # bounded export/import and ID mapping
-  storage/schema.ts            # external-input validation
-  views/CanvasView.tsx         # Placement adapter/viewport
-  views/GraphView.tsx          # canonical Node adapter/locations
-  views/Saezutter.tsx          # feed/composer/drop source
-  components/ContentCard.tsx   # shared content and type icons
-  components/ResizeGrips.tsx   # L controls and keyboard size fields
-  audio/player.ts             # element lifecycle and playback commands
-  audio/Timeline.tsx           # shared time transform/sections/playhead
-  audio/waveform.worker.ts     # bounded peaks and stale-job handling
-  styles/tokens.css            # chosen visual language
-  styles/app.css               # layout and states
-  test/                        # domain/storage/archive unit fixtures
-e2e/                           # actual browser core journeys (root directory)
-public/                        # only rights-cleared local assets
-index.html                     # Vite entry
-package.json / package-lock.json # approved pinned dependencies/scripts
-vite.config.ts / tsconfig.json # app build configuration
-playwright.config.ts           # browser acceptance configuration
-devpost/                       # canonical reviewed planning and build evidence
-outputs/                       # supplemental review artifacts, selected media ignored
-work/                          # reproducible agent scripts when needed
-tmp/                           # ignored local scratch
+src/main.tsx                    # mount app
+src/app.tsx                     # shell, commands, feed, dialogs/navigation
+src/domain/model.ts             # strict schema, canonical mutation functions
+src/storage/db.ts               # project/media transaction and cleanup
+src/storage/archive.ts          # bounded ZIP validation/export/import
+src/storage/media.ts            # browser decode boundaries
+src/storage/image-dimensions.ts # pre-allocation image header bounds
+src/views/Board.tsx             # shared Canvas/Graph rendering adapter
+src/components/ContentCard.tsx  # local media and type icons
+src/audio/Timeline.tsx          # player hook and vertical time transform
+src/audio/waveform.worker.ts    # bounded peaks
+src/styles/app.css              # light palette, square cards, layout/motion
+src/test/                       # domain/archive/storage/media tests
+work/                           # actual Codex browser suite and fixture tools
+outputs/verification/           # ignored local evidence, screenshots and builds
+devpost/                        # reviewed plans, checklist and public report/map
 ```
+The common adapter and small domain module replace planned separate Canvas/Graph
+and commands files. This avoids duplicating behavior. No standalone Playwright
+configuration or extra browser installation was introduced.
 
 ## External Services and Dependencies
 No runtime external API, auth endpoint or cloud database. npm registry is development
@@ -250,7 +245,12 @@ Do not invent a 60fps guarantee. Bound decoded media, use thumbnails/cache and
 subscription granularity before adding abstractions. Capture real evidence of one
 bottleneck and measured change for the learner's optimization goal.
 Planned commands: npm run typecheck, npm run lint, npm run test -- --run,
-npm run test:e2e, npm run build. None is available or executed in this task.
+npm run build. All are now available and executed; see verification.md.
+Actual browser runs use work/browser-suite.mjs with the Codex in-app browser.
+`npm run verify:browser-evidence` checks saved results plus a source fingerprint;
+it does not rerun browser actions. Safari, fresh browser profile, memory/FPS and
+large-file boundary probes remain unverified; fresh-origin boot and generated-media
+roundtrips were exercised. Do not interpret 100-node acceptance as a 60fps result.
 
 ## Decisions and Open Issues
 Confirmed: chosen stack direction, independent Node/Placement/Edge, no login,
@@ -265,3 +265,18 @@ interaction before optimization, repeat the same measurement after changes.
 Release: license, rights-cleared sample assets, hosting/public URL decision and
 outer-vs-nested repository linkage. Never infer push/publication permission.
 Review format still unset; Markdown supplied now, HTML available if requested.
+
+## Build Revisions — 2026-10-20
+
+- The user delegated 5-build and its slice order, asking for unattended completion
+  by HST17:30 and stopping when finished. Human final review is deferred, not faked.
+- Project snapshots plus assets are committed in one transaction. No content copy
+  is owned by a view. Save failures retain dirty memory and pending original assets.
+- Export matches reader limits: each JSON <=8MiB, <=998 assets, <=140MiB payload.
+  Per-file and actual streaming inflation bounds are enforced. Limits are
+  conservative guards; large real-media performance is not claimed.
+- Audio has a 100ms UI clock and bounded worker peaks. Board memoization keeps
+  audio-clock updates out of card rendering. Long files may omit the waveform.
+- Same-source eager/lazy archive builds measure initial JS bytes; no FPS claim.
+- Hosting is a future handoff to the owner's separate Cloudflare Pages website.
+  This task neither edits that repository nor deploys or pushes application code.

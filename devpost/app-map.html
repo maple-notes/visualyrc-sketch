@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Visualyrc Sketch — App Map</title>
+  <style>
+    :root {
+      font:
+        16px/1.65 system-ui,
+        sans-serif;
+      color: #3a3b43;
+      background: #fafaf7;
+    }
+    body {
+      max-width: 1000px;
+      margin: 48px auto;
+      padding: 0 24px;
+    }
+    h1 {
+      font-size: 34px;
+      letter-spacing: -1px;
+      margin: 8px 0;
+    }
+    h2 {
+      font-size: 22px;
+      margin-top: 38px;
+    }
+    h3 {
+      font-size: 17px;
+    }
+    a {
+      color: #674873;
+      text-underline-offset: 3px;
+    }
+    a:focus-visible,
+    summary:focus-visible {
+      outline: 2px solid #866490;
+      outline-offset: 4px;
+    }
+    .eyebrow {
+      font:
+        12px ui-monospace,
+        monospace;
+      letter-spacing: 3px;
+      color: #866490;
+    }
+    .lede {
+      max-width: 780px;
+    }
+    .diagram {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 30px 0;
+    }
+    .step {
+      padding: 20px;
+      background: white;
+      border: 1px solid #ded9e0;
+      box-shadow: 0 3px 10px #3a3b4309;
+    }
+    .step strong {
+      display: block;
+      margin-bottom: 10px;
+    }
+    code {
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+    .note {
+      padding: 18px 22px;
+      background: #ede6ef;
+    }
+    li {
+      margin: 9px 0;
+    }
+    details {
+      padding: 12px 0;
+      border-bottom: 1px solid #ded9e0;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 13px;
+      color: #696773;
+    }
+    @media (max-width: 650px) {
+      .diagram {
+        grid-template-columns: 1fr;
+      }
+      body {
+        margin-top: 24px;
+      }
+    }
+  </style>
+  <body>
+    <p class="eyebrow">VISUALYRC SKETCH / REFERENCE MAP / 2026-10-20</p>
+    <h1>One idea, several places.</h1>
+    <p class="lede">
+      Saezutter, page canvases and Graph refer to one canonical content record.
+      Each placement owns its own geometry. The browser saves the project and
+      original media locally; a portable <code>.vsketch</code> file transfers
+      them together.
+    </p>
+    <p>
+      This is an offline reference route prepared from the working code. The
+      learner has not yet completed an interactive code tour or final product
+      review.
+    </p>
+    <section aria-label="One real action through the source" class="diagram">
+      <div class="step">
+        <strong>1 · Post an idea</strong><code>src/app.tsx</code>
+        <p>
+          The composer calls <code>run</code> with <code>postText</code>. The
+          shell immediately shows the shared idea and marks it Saving.
+        </p>
+      </div>
+      <div class="step">
+        <strong>2 · Keep one content record</strong
+        ><code>src/domain/model.ts</code>
+        <p>
+          <code>postText</code> creates a Node and Post metadata.
+          <code>place</code> adds a reference.
+          <code>validateProject</code> rejects broken links.
+        </p>
+      </div>
+      <div class="step">
+        <strong>3 · Commit before Saved</strong><code>src/storage/db.ts</code>
+        <p>
+          <code>saveProject</code> commits the project and media together. The
+          UI says Saved only after success. Failure keeps dirty content for
+          retry or export.
+        </p>
+      </div>
+    </section>
+    <h2>Follow the reference route</h2>
+    <ol>
+      <li>
+        Open <a href="../src/app.tsx">src/app.tsx</a> and search for
+        <code>className="composer"</code>, then <code>const run</code>. These
+        are the visible action and shared save queue.
+      </li>
+      <li>
+        Open <a href="../src/domain/model.ts">src/domain/model.ts</a> and search
+        for <code>postText</code>, <code>place</code> and
+        <code>removeContent</code>. Notice how removing a placement differs from
+        deleting shared content.
+      </li>
+      <li>
+        Open <a href="../src/storage/db.ts">src/storage/db.ts</a> and search for
+        <code>saveProject</code>. The transaction writes the document and
+        original assets, then reclaims only unreferenced media.
+      </li>
+    </ol>
+    <h2>To change this, start here</h2>
+    <details>
+      <summary>Colors, shadows, spacing and the sidebar</summary>
+      <p>
+        <a href="../src/styles/app.css">src/styles/app.css</a> owns the light
+        palette and layout. Text/feed cards stay square and flat. Selection fill
+        is separate from keyboard focus.
+      </p>
+    </details>
+    <details>
+      <summary>Canvas movement, L grips and Graph rendering</summary>
+      <p>
+        <a href="../src/views/Board.tsx">src/views/Board.tsx</a> uses Placement
+        IDs in Canvas and Node IDs in Graph. Final pointer and keyboard
+        movements update canonical geometry. Editing text never clones content.
+      </p>
+    </details>
+    <details>
+      <summary>Audio and the vertical playhead</summary>
+      <p>
+        <a href="../src/audio/Timeline.tsx">src/audio/Timeline.tsx</a>:
+        <code>useAudio</code> observes the committed media asset and owns one
+        audio element. The timeline uses one seconds-to-pixels transform for
+        waveform, ranges and playhead.
+        <a href="../src/audio/waveform.worker.ts">waveform.worker.ts</a> creates
+        bounded peaks.
+      </p>
+    </details>
+    <details>
+      <summary>Portable backup and validation</summary>
+      <p>
+        <a href="../src/storage/archive.ts">src/storage/archive.ts</a>:
+        <code>exportArchive</code>, <code>readEntries</code> and
+        <code>importArchive</code>. The reader checks directory consistency,
+        CRC, schemas, references and actual expanded bytes. Import remaps IDs
+        into a new project.
+      </p>
+    </details>
+    <h2>A practice to reuse</h2>
+    <div class="note">
+      <p>
+        Specify a visible result before asking an agent to implement it. “Resize
+        only this placement; editing text updates both pages; reload preserves
+        both” became domain tests plus actual browser gestures. A successful
+        build alone would not have detected the audio replacement race;
+        exercising replacement did.
+      </p>
+      <p>
+        For optimization, compare the same source and change one thing.
+        <code>work/measure-bundle.mjs</code> compares eager versus deferred
+        archive loading. The measured initial gzip reduction is 7,962 bytes.
+        This measures payload bytes, not frames per second or network load time.
+      </p>
+    </div>
+    <h2>Run and inspect again</h2>
+    <pre><code>npm ci
+npm run dev
+# http://127.0.0.1:5173/
+
+npm run typecheck
+npm run lint
+npm test
+npm run build
+npm run preview
+# http://127.0.0.1:4173/</code></pre>
+    <p>
+      Use Node 22. Export a project before changing ports or hosts: each origin
+      has separate browser storage.
+      <a href="verification.md">verification.md</a> records evidence and limits.
+      The actual browser runner is <code>work/browser-suite.mjs</code>; the
+      saved-evidence checker does not drive a browser.
+    </p>
+    <footer>
+      Snapshot: the verified 2026-10-20 core build. Source commit is recorded in
+      verification.md. This map can drift after later code changes. No network,
+      script, font service, analytics or private learner information is used by
+      this page.
+    </footer>
+  </body>
+</html>

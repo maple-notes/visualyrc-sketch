@@ -115,7 +115,7 @@ motion/touch/edit/drag. No attraction on resize controls or seeking targets.
 ## Product Decisions
 User-selected: no login; canonical shared content; independent pages; local audio;
 light Canvas/freeform Graph; square shadowed text/feed cards; content icons;
-`.vsketch`; app implementation remains prohibited at this stage.
+`.vsketch`. The user subsequently authorized implementation through 5-build.
 User-approved earlier: IndexedDB and React/TypeScript/Vite/React Flow/Dexie direction.
 Detailed behavior marked recommended above is not attributed to the user.
 
