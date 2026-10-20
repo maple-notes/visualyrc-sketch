@@ -105,3 +105,21 @@ Activity mode: agent browser verification now, learner review later.
 - `8e42ae0`: completed image/Graph, archive, audio, recovery and verification tools.
 - This documentation commit: actual report, app map, planning reconciliation and
   static-hosting handoff. No application push or deployment was performed.
+
+## Official skill resume — 2026-10-20
+
+- Invoked the installed official `5-build` again from saved project artifacts.
+  Planning artifacts exist and scope/PRD/spec/checklist remain approved; completed
+  implementation slices are not repeated or retroactively attributed to new runs.
+- Re-ran typecheck, ESLint,22 unit tests and the production build successfully.
+  The existing 58-assertion Codex-browser report matches current source; the
+  saved-evidence check is not a new browser run. The large-chunk warning remains.
+- Read the official learning-wrap-up instructions. Use the real same-source archive
+  loading comparison for the learner's web-optimization goal after final feedback;
+  the app map is already available. No learner activity or reflection is claimed.
+- Checked the official `6-ship` entry conditions. Hands-on feedback, explicit final
+  readiness and the learning wrap-up remain open, so shipping steps have not begun.
+- Next interaction: learner tries the local preview and describes any unexpected
+  behavior or desired corrections. Keep all human-completion boxes unchecked until
+  that feedback and final readiness actually happen. No additional features,
+  publication, push or deployment are authorized by this resume record.
