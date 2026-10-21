@@ -25,6 +25,11 @@ import {
 } from "lucide-react";
 import {
   createProject,
+  assignAudio,
+  nextPageRange,
+  timelineExtent,
+  reorderPage,
+  trimSection,
   postText,
   place,
   revise,
@@ -36,6 +41,13 @@ import {
   type Project,
   type Asset,
 } from "./domain/model";
+import { pageReorderProps } from "./components/pageReorder";
+import { EditHistory } from "./domain/history";
+import {
+  captureImage,
+  pasteReference,
+  referenceMime,
+} from "./domain/clipboard";
 import { db, saveProject, projectAssets } from "./storage/db";
 import { imageAsset, audioAsset } from "./storage/media";
 import ContentCard, { KindIcon } from "./components/ContentCard";
@@ -52,6 +64,11 @@ const message = (e: unknown) =>
 export default function App() {
   const [project, setProject] = useState<Project>();
   const current = useRef<Project | undefined>(undefined);
+  const history = useRef(new EditHistory());
+  const imageTarget = useRef<
+    { projectId: string; pageId: string; x: number; y: number } | undefined
+  >(undefined);
+  const pasteCount = useRef(0);
   const queue = useRef(Promise.resolve());
   const writeId = useRef(0);
   const pendingAssets = useRef(new Map<string, Asset>());
@@ -83,7 +100,10 @@ export default function App() {
   const allProjects = useLiveQuery(() => db.projects.toArray(), []);
   const player = useAudio(project?.activeAudioId);
   const audio = player.asset;
-  const swap = useCallback((p: Project) => {
+  const swap = useCallback(async (p: Project, media?: Asset[]) => {
+    const assets = media ?? (await projectAssets(p));
+    history.current.reset(assets);
+    pasteCount.current = 0;
     current.current = p;
     setProject(p);
     const stored = localStorage.getItem("visualyrc.view." + p.id);
@@ -161,7 +181,7 @@ export default function App() {
           await saveProject(p);
         }
         if (alive) {
-          swap(validateProject(p));
+          await swap(validateProject(p));
           setReady(true);
         }
       } catch (e) {
@@ -186,25 +206,36 @@ export default function App() {
       );
   }, [ready, project, pageId, mode, sidebar]);
   const run = useCallback(
-    (change: (p: Project) => Project, assets: Asset[] = []) => {
+    (
+      change: (p: Project) => Project,
+      assets: Asset[] = [],
+      remember = true,
+    ) => {
       if (readOnlyRef.current || busyRef.current) return false;
       if (!current.current) return false;
       try {
         const next = change(current.current);
+        history.current.record(current.current, next, assets, remember);
         current.current = next;
         setProject(next);
         setSaveState("Saving");
         const version = ++writeId.current;
         for (const a of assets) pendingAssets.current.set(a.id, a);
+        const referenced = new Set([
+          ...next.nodes.flatMap((n) => (n.kind === "image" ? [n.assetId] : [])),
+          ...(next.activeAudioId ? [next.activeAudioId] : []),
+        ]);
         const media = [...pendingAssets.current.values()].filter(
-          (a) => a.projectId === next.id,
+          (a) => a.projectId === next.id && referenced.has(a.id),
         );
         queue.current = queue.current
           .catch(() => undefined)
           .then(() => saveProject(next, media))
           .then(() => {
-            for (const a of media) pendingAssets.current.delete(a.id);
-            if (version === writeId.current) setSaveState("Saved");
+            if (version === writeId.current) {
+              pendingAssets.current.clear();
+              setSaveState("Saved");
+            }
           })
           .catch((e) => {
             setSaveState("Unsaved");
@@ -325,41 +356,189 @@ export default function App() {
     );
     setNotice("Reference added to this page.");
   };
-  const uploadImage = async (file?: File) => {
-    if (!file || !project || readOnlyRef.current || busyRef.current) return;
+  const uploadImage = async (
+    file?: File,
+    target?: { projectId: string; pageId: string; x: number; y: number },
+  ) => {
+    const origin = current.current?.id;
+    if (!file || !origin || readOnlyRef.current || busyRef.current) return;
     try {
-      const a = await imageAsset(file, project.id);
-      if (current.current?.id !== project.id) {
-        setError(
-          "Project changed while loading the image. Attach it again in the intended project.",
+      const asset = await imageAsset(file, origin);
+      if (
+        current.current?.id !== origin ||
+        (target && target.projectId !== origin)
+      )
+        throw Error(
+          "Project changed while loading the image. Attach it again.",
         );
-        return;
-      }
       if (busyRef.current)
         throw Error(
           "Another operation is running. Attach the image again when it finishes.",
         );
-      run(
-        (p) =>
-          revise(p, (n) => {
-            const id = uid(),
-              now = new Date().toISOString();
-            n.nodes.push({
-              id,
-              kind: "image",
-              assetId: a.id,
-              altText: a.name,
-              createdAt: now,
-              updatedAt: now,
-            });
-            n.posts.unshift({ id: uid(), nodeId: id, postedAt: now });
-          }),
-        [a],
-      );
+      run((p) => captureImage(p, asset, target), [asset]);
     } catch (e) {
       setError(message(e));
     }
   };
+  const dropImages = async (files: File[], x: number, y: number) => {
+    const p = current.current;
+    if (!p || readOnlyRef.current || busyRef.current) return;
+    if (files.length > 20) {
+      setError("Drop at most20 images at once.");
+      return;
+    }
+    const target = { projectId: p.id, pageId, x, y };
+    for (const [i, file] of files.entries())
+      await uploadImage(file, { ...target, x: x + i * 24, y: y + i * 24 });
+  };
+  useEffect(() => {
+    const editing = (target: EventTarget | null) =>
+      target instanceof Element &&
+      !!target.closest("input,textarea,select,[contenteditable]");
+    const key = (event: KeyboardEvent) => {
+      if (editing(event.target) || readOnlyRef.current || busyRef.current)
+        return;
+      const shortcut = event.metaKey || event.ctrlKey;
+      if (shortcut && event.key.toLowerCase() === "z") {
+        event.preventDefault();
+        const p = current.current;
+        if (!p) return;
+        try {
+          const next = history.current.step(
+            p,
+            event.shiftKey ? "redo" : "undo",
+          );
+          if (next) {
+            run(() => next, history.current.assets(next), false);
+            setSelected("");
+            setSelectedPlacement("");
+          }
+        } catch (e) {
+          setError(message(e));
+        }
+      }
+      if (
+        mode === "canvas" &&
+        selectedPlacement &&
+        ["Delete", "Backspace"].includes(event.key) &&
+        !shortcut
+      ) {
+        event.preventDefault();
+        run((p) =>
+          revise(p, (n) => {
+            n.placements = n.placements.filter(
+              (a) => a.id !== selectedPlacement,
+            );
+          }),
+        );
+        setSelected("");
+        setSelectedPlacement("");
+      }
+    };
+    const copy = (event: ClipboardEvent) => {
+      if (editing(event.target) || window.getSelection()?.toString()) return;
+      const p = current.current,
+        node = p?.nodes.find((n) => n.id === selected);
+      if (!p || !node || !event.clipboardData) return;
+      if (
+        event.type === "cut" &&
+        (mode !== "canvas" ||
+          !selectedPlacement ||
+          readOnlyRef.current ||
+          busyRef.current)
+      ) {
+        event.preventDefault();
+        setNotice(
+          "Cut removes a Canvas reference. Open this content in a page to cut it.",
+        );
+        return;
+      }
+      const placement =
+        p.placements.find((a) => a.id === selectedPlacement) ??
+        p.placements.find((a) => a.nodeId === node.id);
+      event.preventDefault();
+      pasteCount.current = 0;
+      event.clipboardData.setData(
+        referenceMime,
+        JSON.stringify({
+          projectId: p.id,
+          nodeId: node.id,
+          x: placement?.x ?? 100,
+          y: placement?.y ?? 100,
+          width: placement?.width ?? 280,
+          height: placement?.height ?? 170,
+        }),
+      );
+      event.clipboardData.setData(
+        "text/plain",
+        node.kind === "text" ? node.text : node.altText,
+      );
+      if (event.type === "cut") {
+        run((p) =>
+          revise(p, (n) => {
+            n.placements = n.placements.filter(
+              (a) => a.id !== selectedPlacement,
+            );
+          }),
+        );
+        setSelected("");
+        setSelectedPlacement("");
+      }
+    };
+    const paste = (event: ClipboardEvent) => {
+      if (
+        editing(event.target) ||
+        readOnlyRef.current ||
+        busyRef.current ||
+        !event.clipboardData
+      )
+        return;
+      if (mode !== "canvas") {
+        if (event.clipboardData.getData(referenceMime)) {
+          event.preventDefault();
+          setNotice("Switch to Canvas to paste a reference.");
+        }
+        return;
+      }
+      const custom = event.clipboardData.getData(referenceMime);
+      if (custom) {
+        event.preventDefault();
+        try {
+          const data: unknown = JSON.parse(custom);
+          run((p) =>
+            pasteReference(p, data, pageId, 24 * ++pasteCount.current),
+          );
+        } catch (e) {
+          setError(message(e));
+        }
+        return;
+      }
+      const images = [...event.clipboardData.files];
+      if (images.length) {
+        event.preventDefault();
+        void dropImages(images, 100, 100);
+        return;
+      }
+      const text = event.clipboardData.getData("text/plain");
+      if (text.trim()) {
+        event.preventDefault();
+        run((p) => {
+          const next = postText(p, text);
+          return place(next, next.posts[0].nodeId, pageId);
+        });
+      }
+    };
+    document.addEventListener("keydown", key);
+    document.addEventListener("copy", copy);
+    document.addEventListener("cut", copy);
+    document.addEventListener("paste", paste);
+    return () => {
+      document.removeEventListener("keydown", key);
+      document.removeEventListener("copy", copy);
+      document.removeEventListener("cut", copy);
+      document.removeEventListener("paste", paste);
+    };
+  }, [mode, pageId, selected, selectedPlacement, run]);
   const uploadAudio = async (file?: File) => {
     if (!file || !project || readOnlyRef.current || busyRef.current) return;
     setBusy(true);
@@ -370,20 +549,13 @@ export default function App() {
       setBusy(false);
       const apply = () => {
         player.stop();
-        run(
-          (p) =>
-            revise(p, (n) => {
-              n.activeAudioId = a.id;
-              for (const page of n.pages) delete page.audioRange;
-            }),
-          [a],
-        );
+        run((p) => assignAudio(p, a.id, a.duration!), [a]);
       };
       if (project.activeAudioId)
         setModal({
           kind: "confirm",
           title: "Replace audio?",
-          body: "Existing page time ranges will be cleared. All pages and content stay.",
+          body: "Pages will be divided evenly across the new audio. Existing time ranges will be replaced; all content stays.",
           action: apply,
         });
       else apply();
@@ -399,14 +571,7 @@ export default function App() {
     try {
       await queue.current;
       const p = current.current;
-      const stored = await projectAssets(p);
-      const assets = [
-        ...new Map(
-          [...stored, ...pendingAssets.current.values()]
-            .filter((a) => a.projectId === p.id)
-            .map((a) => [a.id, a]),
-        ).values(),
-      ];
+      const assets = history.current.assets(p);
       const estimate = assets.reduce((n, a) => n + a.blob.size, 0);
       if (estimate > 140 * 1024 * 1024)
         throw Error("Project media exceeds the 140 MiB portable export limit.");
@@ -448,7 +613,7 @@ export default function App() {
           throw Error("Audio duration does not match archive");
       }
       await saveProject(result.project, result.assets);
-      swap(result.project);
+      await swap(result.project, result.assets);
       setNotice("Imported as a new project. Existing work is preserved.");
     } catch (e) {
       setError("Import rejected. Existing work is unchanged. " + message(e));
@@ -463,12 +628,17 @@ export default function App() {
     project?.pages.find((p) => p.id === pageId) ?? project?.pages[0];
   const editPage = (id?: string) => {
     const p = project?.pages.find((p) => p.id === id);
+    const range =
+      p?.audioRange ??
+      (!id && project && audio
+        ? nextPageRange(project.pages, audio.id, audio.duration!)
+        : undefined);
     setModal({
       kind: "page",
       id,
       title: p?.title ?? "New page",
-      start: p?.audioRange ? String(p.audioRange.start) : "",
-      end: p?.audioRange ? String(p.audioRange.end) : "",
+      start: range ? String(range.start) : "",
+      end: range ? String(range.end) : "",
     });
   };
   const changePage = (id: string) => {
@@ -581,7 +751,14 @@ export default function App() {
             <X />
           </button>
           {saveState === "Unsaved" && (
-            <button onClick={() => run((p) => p)}>Retry save</button>
+            <button
+              onClick={() => {
+                if (current.current)
+                  run((p) => p, history.current.assets(current.current));
+              }}
+            >
+              Retry save
+            </button>
           )}
         </div>
       )}
@@ -666,23 +843,48 @@ export default function App() {
                   </button>
                 </>
               )}
-              <span className="header-spacer" />
-              {mode === "canvas" && (
-                <button
-                  aria-label="Toggle page rail"
-                  onClick={() => setRails(!rails)}
-                >
-                  <PanelLeftClose />
-                </button>
-              )}
             </section>
           )}
           <div className="workspace">
             {mode === "canvas" && rails && (
               <aside className={"page-navigation " + (audio ? "timed" : "")}>
+                <div className="page-rail-header">
+                  <span>PAGES</span>
+                  {!audio && (
+                    <button
+                      aria-label="Add page"
+                      disabled={busy || readOnly}
+                      onClick={() => editPage()}
+                    >
+                      <Plus />
+                    </button>
+                  )}
+                  <button
+                    aria-label="Toggle page rail"
+                    title="Collapse page rail"
+                    onClick={() => setRails(false)}
+                  >
+                    <PanelLeftClose />
+                  </button>
+                </div>
                 {audio ? (
                   <Timeline
                     asset={audio}
+                    readOnly={readOnly || busy}
+                    onTrim={(id, edge, seconds) =>
+                      run((p) =>
+                        trimSection(
+                          p,
+                          id,
+                          edge,
+                          seconds,
+                          timelineExtent(p.pages, audio.duration!),
+                        ),
+                      )
+                    }
+                    onReorder={(id, target, after) =>
+                      run((p) => reorderPage(p, id, target, after))
+                    }
                     time={player.time}
                     follow={player.follow}
                     seek={player.seek}
@@ -697,20 +899,19 @@ export default function App() {
                   />
                 ) : (
                   <>
-                    <div className="rail-title">
-                      PAGES
-                      <button
-                        aria-label="Add page"
-                        disabled={busy || readOnly}
-                        onClick={() => editPage()}
-                      >
-                        <Plus />
-                      </button>
-                    </div>
                     {[...project.pages]
                       .sort((a, b) => a.order - b.order)
                       .map((p, i) => (
-                        <div className="page-row" key={p.id}>
+                        <div
+                          className="page-row"
+                          key={p.id}
+                          {...pageReorderProps(
+                            p.id,
+                            (id, target, after) =>
+                              run((p) => reorderPage(p, id, target, after)),
+                            busy || readOnly,
+                          )}
+                        >
                           <button
                             className={
                               "page-button magnetic " +
@@ -744,6 +945,17 @@ export default function App() {
                     Add page / section
                   </button>
                 )}
+              </aside>
+            )}
+            {mode === "canvas" && !rails && (
+              <aside className="page-rail-collapsed">
+                <button
+                  aria-label="Toggle page rail"
+                  title="Expand page rail"
+                  onClick={() => setRails(true)}
+                >
+                  <ArrowRightToLine />
+                </button>
               </aside>
             )}
             <section
@@ -785,7 +997,15 @@ export default function App() {
                     <button
                       aria-label="Add image"
                       disabled={busy || readOnly}
-                      onClick={() => fileImage.current?.click()}
+                      onClick={() => {
+                        imageTarget.current = {
+                          projectId: project.id,
+                          pageId,
+                          x: 100,
+                          y: 100,
+                        };
+                        fileImage.current?.click();
+                      }}
                     >
                       <ImageIcon />
                     </button>
@@ -798,12 +1018,16 @@ export default function App() {
                     </button>
                   </>
                 )}
-                <button
-                  aria-label={sidebar ? "Collapse Saezutter" : "Open Saezutter"}
-                  onClick={() => setSidebar(!sidebar)}
-                >
-                  {sidebar ? <ArrowRightToLine /> : <ArrowLeftToLine />}
-                </button>
+                {mode === "graph" && (
+                  <button
+                    aria-label={
+                      sidebar ? "Collapse Saezutter" : "Open Saezutter"
+                    }
+                    onClick={() => setSidebar(!sidebar)}
+                  >
+                    {sidebar ? <ArrowRightToLine /> : <ArrowLeftToLine />}
+                  </button>
+                )}
               </div>
               <Board
                 key={mode + pageId}
@@ -855,6 +1079,7 @@ export default function App() {
                   )
                 }
                 onDrop={(id, x, y) => !readOnly && addPlacement(id, x, y)}
+                onFilesDrop={dropImages}
                 onViewport={(v) => {
                   if (readOnly) return;
                   const old = current.current?.viewports.find(
@@ -866,13 +1091,16 @@ export default function App() {
                     Math.abs(old.y - v.y) > 0.5 ||
                     Math.abs(old.zoom - v.zoom) > 0.001
                   )
-                    run((p) =>
-                      revise(p, (n) => {
-                        n.viewports = n.viewports.filter(
-                          (x) => x.pageId !== pageId,
-                        );
-                        n.viewports.push({ pageId, ...v });
-                      }),
+                    run(
+                      (p) =>
+                        revise(p, (n) => {
+                          n.viewports = n.viewports.filter(
+                            (x) => x.pageId !== pageId,
+                          );
+                          n.viewports.push({ pageId, ...v });
+                        }),
+                      [],
+                      false,
                     );
                 }}
               />
@@ -1255,7 +1483,10 @@ export default function App() {
                       type="button"
                       aria-label="Attach image"
                       disabled={busy || readOnly}
-                      onClick={() => fileImage.current?.click()}
+                      onClick={() => {
+                        imageTarget.current = undefined;
+                        fileImage.current?.click();
+                      }}
                     >
                       <ImageIcon />
                     </button>
@@ -1289,7 +1520,8 @@ export default function App() {
         accept="image/png,image/jpeg,image/webp"
         hidden
         onChange={(e) => {
-          void uploadImage(e.target.files?.[0]);
+          void uploadImage(e.target.files?.[0], imageTarget.current);
+          imageTarget.current = undefined;
           e.target.value = "";
         }}
       />
@@ -1403,10 +1635,10 @@ export default function App() {
                       (!audio ||
                         modal.start === "" ||
                         modal.end === "" ||
-                        end > (audio.duration ?? 0))
+                        end > 7 * 86400)
                     )
                       throw Error(
-                        "Enter a valid start/end within the audio duration.",
+                        "Enter a valid start/end within the seven-day planning timeline.",
                       );
                     const next = revise(project!, (n) => {
                       let page = n.pages.find((p) => p.id === modal.id);
@@ -1414,7 +1646,7 @@ export default function App() {
                         page = {
                           id: uid(),
                           title: modal.title.trim(),
-                          order: n.pages.length,
+                          order: Math.max(...n.pages.map((p) => p.order)) + 1,
                         };
                         n.pages.push(page);
                       }
@@ -1423,7 +1655,8 @@ export default function App() {
                         page.audioRange = { assetId: audio.id, start, end };
                       else delete page.audioRange;
                     });
-                    run(() => next);
+                    if (run(() => next) && !modal.id)
+                      changePage(next.pages[next.pages.length - 1].id);
                     setModal(undefined);
                   } catch (e) {
                     setError(message(e));
@@ -1478,44 +1711,34 @@ export default function App() {
                       <button
                         type="button"
                         aria-label="Move page earlier"
-                        onClick={() =>
-                          run((p) =>
-                            revise(p, (n) => {
-                              const order = [...n.pages].sort(
-                                  (a, b) => a.order - b.order,
-                                ),
-                                i = order.findIndex((x) => x.id === modal.id);
-                              if (i > 0)
-                                [order[i], order[i - 1]] = [
-                                  order[i - 1],
-                                  order[i],
-                                ];
-                              order.forEach((x, i) => (x.order = i));
-                            }),
-                          )
-                        }
+                        onClick={() => {
+                          const order = [...project!.pages].sort(
+                              (a, b) => a.order - b.order,
+                            ),
+                            i = order.findIndex((p) => p.id === modal.id);
+                          if (i > 0)
+                            run((p) =>
+                              reorderPage(p, modal.id!, order[i - 1].id),
+                            );
+                          setModal(undefined);
+                        }}
                       >
                         <ChevronUp />
                       </button>
                       <button
                         type="button"
                         aria-label="Move page later"
-                        onClick={() =>
-                          run((p) =>
-                            revise(p, (n) => {
-                              const order = [...n.pages].sort(
-                                  (a, b) => a.order - b.order,
-                                ),
-                                i = order.findIndex((x) => x.id === modal.id);
-                              if (i < order.length - 1)
-                                [order[i], order[i + 1]] = [
-                                  order[i + 1],
-                                  order[i],
-                                ];
-                              order.forEach((x, i) => (x.order = i));
-                            }),
-                          )
-                        }
+                        onClick={() => {
+                          const order = [...project!.pages].sort(
+                              (a, b) => a.order - b.order,
+                            ),
+                            i = order.findIndex((p) => p.id === modal.id);
+                          if (i < order.length - 1)
+                            run((p) =>
+                              reorderPage(p, modal.id!, order[i + 1].id, true),
+                            );
+                          setModal(undefined);
+                        }}
                       >
                         <ChevronDown />
                       </button>
@@ -1574,7 +1797,7 @@ export default function App() {
                               current.current?.id === p.id
                                 ? current.current
                                 : await db.projects.get(p.id);
-                            if (latest) swap(validateProject(latest));
+                            if (latest) await swap(validateProject(latest));
                             setModal(undefined);
                           })
                           .catch((e) => setError(message(e)))
@@ -1603,8 +1826,8 @@ export default function App() {
                   const p = createProject(modal.name);
                   setBusy(true);
                   void saveProject(p)
-                    .then(() => {
-                      swap(p);
+                    .then(async () => {
+                      await swap(p, []);
                       setModal(undefined);
                     })
                     .catch((e) => setError(message(e)))

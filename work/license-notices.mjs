@@ -15,7 +15,7 @@ for (const dir of [...new Set(dirs)].sort()) {
     /^licen[sc]e(?:\.|$)/i.test(name),
   );
   if (!license) throw Error("Missing license text for " + p.name);
-  text += `\n## ${p.name} ${p.version}\n\nDeclared license: ${p.license}\n\n<details><summary>License text</summary>\n\n\`\`\`text\n${await readFile(dir + "/" + license, "utf8")}\n\`\`\`\n</details>\n`;
+  text += `\n## ${p.name} ${p.version}\n\nDeclared license: ${p.license ?? "Not declared in package metadata; see the license text below"}\n\n<details><summary>License text</summary>\n\n\`\`\`text\n${await readFile(dir + "/" + license, "utf8")}\n\`\`\`\n</details>\n`;
 }
 await writeFile("THIRD_PARTY_NOTICES.md", text);
 console.log(`Recorded ${dirs.length} dependency licenses.`);

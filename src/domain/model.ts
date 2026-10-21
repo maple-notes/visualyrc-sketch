@@ -31,7 +31,11 @@ export const pageSchema = z
       .object({
         assetId: id,
         start: z.number().finite().nonnegative(),
-        end: z.number().finite().positive(),
+        end: z
+          .number()
+          .finite()
+          .positive()
+          .max(7 * 86400),
       })
       .strict()
       .optional(),
@@ -218,5 +222,126 @@ export function removePage(p: Project, id: string): Project {
     n.pages = n.pages.filter((x) => x.id !== id);
     n.placements = n.placements.filter((x) => x.pageId !== id);
     n.viewports = n.viewports.filter((x) => x.pageId !== id);
+  });
+}
+
+export function assignAudio(
+  p: Project,
+  assetId: string,
+  duration: number,
+): Project {
+  if (!Number.isFinite(duration) || duration <= 0)
+    throw Error("Invalid audio duration");
+  return revise(p, (next) => {
+    next.activeAudioId = assetId;
+    const pages = [...next.pages].sort((a, b) => a.order - b.order);
+    pages.forEach((page, i) => {
+      page.audioRange = {
+        assetId,
+        start: (i * duration) / pages.length,
+        end: ((i + 1) * duration) / pages.length,
+      };
+    });
+  });
+}
+
+export function trimRange(
+  pages: Page[],
+  pageId: string,
+  edge: "start" | "end",
+  seconds: number,
+  duration: number,
+): NonNullable<Page["audioRange"]> {
+  if (!Number.isFinite(seconds) || !Number.isFinite(duration) || duration <= 0)
+    throw Error("Invalid section time");
+  const ordered = pages
+    .filter((page) => page.audioRange)
+    .sort((a, b) => a.audioRange!.start - b.audioRange!.start);
+  const index = ordered.findIndex((page) => page.id === pageId),
+    original = ordered[index]?.audioRange;
+  if (!original) throw Error("Page has no audio section");
+  const range = { ...original },
+    minimum = Math.min(0.1, range.end - range.start);
+  if (edge === "start")
+    range.start = Math.max(
+      ordered[index - 1]?.audioRange?.end ?? 0,
+      Math.min(range.end - minimum, seconds),
+    );
+  else
+    range.end = Math.min(
+      ordered[index + 1]?.audioRange?.start ?? duration,
+      Math.max(range.start + minimum, seconds),
+    );
+  return range;
+}
+export function trimSection(
+  p: Project,
+  pageId: string,
+  edge: "start" | "end",
+  seconds: number,
+  duration: number,
+): Project {
+  const range = trimRange(p.pages, pageId, edge, seconds, duration);
+  return revise(p, (next) => {
+    next.pages.find((page) => page.id === pageId)!.audioRange = range;
+  });
+}
+
+export function nextPageRange(
+  pages: Page[],
+  assetId: string,
+  duration: number,
+) {
+  const start = Math.max(0, ...pages.map((p) => p.audioRange?.end ?? 0));
+  const last = [...pages]
+    .filter((p) => p.audioRange)
+    .sort((a, b) => b.audioRange!.end - a.audioRange!.end)[0]?.audioRange;
+  const length = Math.min(30, last ? last.end - last.start : duration);
+  const end =
+    start + (start < duration ? Math.min(length, duration - start) : length);
+  return { assetId, start, end };
+}
+export function timelineExtent(pages: Page[], duration: number) {
+  return Math.min(
+    7 * 86400,
+    Math.max(duration, ...pages.map((p) => p.audioRange?.end ?? 0)) + 30,
+  );
+}
+export function reorderPage(
+  p: Project,
+  sourceId: string,
+  targetId: string,
+  after = false,
+): Project {
+  if (sourceId === targetId) return p;
+  const ordered = [...p.pages].sort((a, b) => a.order - b.order);
+  const source = ordered.find((page) => page.id === sourceId);
+  if (!source || !ordered.some((page) => page.id === targetId))
+    throw Error("Page no longer exists");
+  const ids = ordered
+    .filter((page) => page.id !== sourceId)
+    .map((page) => page.id);
+  ids.splice(ids.indexOf(targetId) + (after ? 1 : 0), 0, sourceId);
+  return revise(p, (next) => {
+    const timed = next.pages
+      .filter((page) => page.audioRange)
+      .sort((a, b) => a.audioRange!.start - b.audioRange!.start);
+    const gaps = timed.map(
+      (page, i) =>
+        page.audioRange!.start - (timed[i - 1]?.audioRange?.end ?? 0),
+    );
+    next.pages.forEach((page) => {
+      page.order = ids.indexOf(page.id);
+    });
+    let cursor = 0;
+    timed
+      .sort((a, b) => a.order - b.order)
+      .forEach((page, i) => {
+        const r = page.audioRange!,
+          length = r.end - r.start;
+        cursor += gaps[i];
+        page.audioRange = { ...r, start: cursor, end: cursor + length };
+        cursor += length;
+      });
   });
 }

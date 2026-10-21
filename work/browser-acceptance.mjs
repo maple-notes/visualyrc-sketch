@@ -148,7 +148,7 @@ export async function runAcceptance(tab, root) {
     "placement removal retains graph relationship",
   );
   await button("Canvas").click();
-  await button("Open Saezutter").click();
+  await button("Expand Saezutter").click();
   await pw.getByLabel("Write a note", { exact: true }).fill("Draft retained");
   await button("Collapse sidebar").click();
   const before = await pw

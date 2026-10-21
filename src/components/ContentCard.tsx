@@ -1,23 +1,21 @@
 import { useEffect, useState } from "react";
 import { Type, Image as ImageIcon } from "lucide-react";
 import type { Content } from "../domain/model";
+import MarkdownContent from "./MarkdownContent";
+import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../storage/db";
 export function MediaImage({ assetId, alt }: { assetId: string; alt: string }) {
   const [url, setUrl] = useState("");
+  const asset = useLiveQuery(() => db.assets.get(assetId), [assetId]);
   useEffect(() => {
-    let live = true,
-      objectUrl = "";
-    db.assets.get(assetId).then((a) => {
-      if (a && live) {
-        objectUrl = URL.createObjectURL(a.blob);
-        setUrl(objectUrl);
-      }
-    });
-    return () => {
-      live = false;
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-    };
-  }, [assetId]);
+    if (!asset) {
+      setUrl("");
+      return;
+    }
+    const objectUrl = URL.createObjectURL(asset.blob);
+    setUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [asset]);
   return url ? (
     <img draggable={false} src={url} alt={alt} />
   ) : (
@@ -33,7 +31,7 @@ export function KindIcon({ kind }: { kind: Content["kind"] }) {
 }
 export default function ContentCard({ content }: { content: Content }) {
   return content.kind === "text" ? (
-    <p className="content-text">{content.text}</p>
+    <MarkdownContent text={content.text} />
   ) : (
     <MediaImage assetId={content.assetId} alt={content.altText} />
   );

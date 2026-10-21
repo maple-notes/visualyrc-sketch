@@ -267,13 +267,6 @@ export async function importArchive(
       throw Error("Missing image reference");
   if (p.activeAudioId && descriptors.get(p.activeAudioId)?.kind !== "audio")
     throw Error("Missing audio reference");
-  for (const page of p.pages)
-    if (
-      page.audioRange &&
-      page.audioRange.end >
-        (descriptors.get(page.audioRange.assetId)?.duration ?? 0)
-    )
-      throw Error("Range exceeds audio");
   // Imported IDs are always new, so restoring cannot overwrite existing work.
   const mapping = new Map<string, string>();
   const remap = (id: string) => {

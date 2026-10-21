@@ -148,3 +148,27 @@ it("roundtrips the longest valid project name", async () => {
   expect(imported.project.name.length).toBeLessThanOrEqual(200);
   expect(imported.project.name.endsWith(" (imported)")).toBe(true);
 });
+
+it("roundtrips a planning section beyond the actual audio duration", async () => {
+  const p = createProject(),
+    id = uid();
+  const next = revise(p, (n) => {
+    n.activeAudioId = id;
+    n.pages[0].audioRange = { assetId: id, start: 6, end: 12 };
+  });
+  const media: Asset = {
+    id,
+    projectId: p.id,
+    kind: "audio",
+    name: "tone.wav",
+    mime: "audio/wav",
+    duration: 6,
+    blob: new Blob(["audio"]),
+  };
+  const result = await importArchive(await exportArchive(next, [media]));
+  expect(result.project.pages[0].audioRange).toMatchObject({
+    start: 6,
+    end: 12,
+  });
+  expect(result.assets[0].duration).toBe(6);
+});

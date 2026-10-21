@@ -26,7 +26,7 @@ No user or third-party art is used in destructive tests.
 ## Actual Codex in-app browser run
 
 Read the installed `control-in-app-browser` skill. Connect using its documented
-browser runtime through the Codex Node tool. Open `http://127.0.0.1:4173/` in a tab
+browser runtime through the Codex Node tool. Open a disposable origin such as `http://127.0.0.1:4180/` in a tab
 with no other editable tab on that origin. Pass that live tab and browser binding:
 
 ```js
@@ -38,7 +38,11 @@ This creates disposable projects through visible controls, file choosers and act
 pointer gestures. It does not inject application state, fetch data behind the UI,
 or substitute an external browser. `browser-acceptance.mjs` checks the 30 core
 assertions; `browser-extra-acceptance.mjs` checks 20 gestures/deletion/audio/locking
-assertions; `browser-media-acceptance.mjs` checks supported codecs and natural ending.
+assertions; `browser-media-acceptance.mjs` checks 8 codec and natural-ending assertions;
+`browser-review-acceptance.mjs` checks 37 final-review assertions including actual
+clipboard keys, trim drag, media undo, Markdown and Mermaid. Total: 95 assertions.
+Native Finder file drags are not automated by the installed runtime. A real Canvas
+file chooser tests the shared ingestion path; native external ingress needs a human check.
 
 Results and screenshots are ignored under `outputs/verification/`. The suite checks
 that source did not change during the run and records its fingerprint. Afterwards:

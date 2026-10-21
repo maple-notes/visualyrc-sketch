@@ -1,4 +1,5 @@
 // This needs a live Codex in-app browser tab; it does not launch a separate browser.
+import { runReview } from "./browser-review-acceptance.mjs";
 import { runAcceptance } from "./browser-acceptance.mjs";
 import { runMedia } from "./browser-media-acceptance.mjs";
 import { runExtra } from "./browser-extra-acceptance.mjs";
@@ -9,6 +10,7 @@ export async function runSuite(tab, browser, root) {
   const core = await runAcceptance(tab, root);
   const extra = await runExtra(tab, browser, root);
   const media = await runMedia(tab, root);
+  const review = await runReview(tab, root);
   const after = await sourceFingerprint(root);
   if (before !== after)
     throw Error("Source changed during browser verification; rerun.");
@@ -17,7 +19,8 @@ export async function runSuite(tab, browser, root) {
     core: core.passed,
     extra: extra.passed,
     media: media.passed,
-    total: core.passed + extra.passed + media.passed,
+    review: review.passed,
+    total: core.passed + extra.passed + media.passed + review.passed,
     url: await tab.url(),
     completedAt: new Date().toISOString(),
   };

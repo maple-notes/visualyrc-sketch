@@ -52,7 +52,7 @@ export async function runExtra(tab, browser, root) {
   );
   await pw.getByRole("textbox", { name: "Search nodes", exact: true }).fill("");
   await b("Canvas").click();
-  await b("Open Saezutter").click();
+  await b("Expand Saezutter").click();
   await b("01 Opening 00:00—00:03").click();
   const drag = await pw.evaluate(() => {
     const post = [...document.querySelectorAll(".post-card")]
@@ -71,6 +71,8 @@ export async function runExtra(tab, browser, root) {
     "actual Saezutter drag creates reference",
   );
   await b("Shared edit across both pages").click();
+  await b("Fit").click();
+  await new Promise((resolve) => setTimeout(resolve, 350));
   const grip = await pw.locator(".corner-grip.bottom.right").evaluate((el) => {
     const r = el.getBoundingClientRect();
     return [r.x + r.width / 2, r.y + r.height / 2];
@@ -92,6 +94,8 @@ export async function runExtra(tab, browser, root) {
   );
   await b("02 Second page 00:03—00:06").click();
   await b("reference.png").click();
+  await b("Fit").click();
+  await new Promise((resolve) => setTimeout(resolve, 350));
   const ig = await pw.locator(".corner-grip.bottom.right").evaluate((el) => {
     const r = el.getBoundingClientRect();
     return [r.x + r.width / 2, r.y + r.height / 2];
@@ -149,9 +153,9 @@ export async function runExtra(tab, browser, root) {
   await b("Replace audio").waitFor({ state: "visible" });
   await state();
   check(
-    (await pw.locator(".timed-section").count()) === 0 &&
+    (await pw.locator(".timed-section").count()) === 2 &&
       (await pw.locator(".react-flow__node").count()) === 2,
-    "audio replacement clears only ranges",
+    "audio replacement redistributes pages and preserves content",
   );
   await b("Remove audio").click();
   await state();
@@ -164,7 +168,6 @@ export async function runExtra(tab, browser, root) {
   );
   await b("Edit page Second page").click();
   await b("Move page earlier").click();
-  await b("Close dialog").click();
   check(
     (await pw.locator(".canvas-toolbar").innerText()).includes(
       "01 / SECOND PAGE",

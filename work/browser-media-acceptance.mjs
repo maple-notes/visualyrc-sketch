@@ -17,7 +17,7 @@ export async function runMedia(tab, root) {
     await chooser.setFiles([path]);
   };
   await b("Canvas").click();
-  if (await b("Open Saezutter").count()) await b("Open Saezutter").click();
+  if (await b("Expand Saezutter").count()) await b("Expand Saezutter").click();
   await upload("Attach image", root + "/tmp/fixtures/reference.jpg");
   await pw
     .locator('.post-card img[alt="reference.jpg"]')

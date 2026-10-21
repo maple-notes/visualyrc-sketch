@@ -15,6 +15,7 @@ for (const file of [
   "browser-acceptance.json",
   "browser-extra.json",
   "browser-media.json",
+  "browser-review.json",
 ]) {
   const result = JSON.parse(
     await readFile("outputs/verification/" + file, "utf8"),
@@ -26,7 +27,11 @@ for (const file of [
 assert.equal(report.core, 30);
 assert(report.extra >= 20);
 assert.equal(report.media, 8);
-assert.equal(report.total, report.core + report.extra + report.media);
+assert(report.review >= 37);
+assert.equal(
+  report.total,
+  report.core + report.extra + report.media + report.review,
+);
 console.log(
   `Verified saved Codex-browser evidence: ${report.total} checks, ${report.url}, ${report.completedAt}. This command does not rerun the browser.`,
 );

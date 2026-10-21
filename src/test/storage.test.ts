@@ -73,3 +73,34 @@ it("reclaims removed audio but preserves media referenced by canonical content",
   await saveProject(p);
   expect(await db.assets.get(a.id)).toBeUndefined();
 });
+
+it("restores history media after a failed undo save and retries without losing originals", async () => {
+  const { EditHistory } = await import("../domain/history");
+  const { captureImage } = await import("../domain/clipboard");
+  const p = createProject();
+  const asset = {
+    id: uid(),
+    projectId: p.id,
+    kind: "image" as const,
+    name: "original.png",
+    mime: "image/png",
+    width: 10,
+    height: 10,
+    blob: new Blob(["original"]),
+  };
+  const image = captureImage(p, asset);
+  const history = new EditHistory();
+  history.reset([asset]);
+  history.record(image, p, []);
+  await saveProject(image, [asset]);
+  await saveProject(p);
+  const restored = history.step(p, "undo")!;
+  vi.spyOn(db.projects, "put").mockRejectedValueOnce(new Error("disk full"));
+  await expect(saveProject(restored, history.assets(restored))).rejects.toThrow(
+    "disk full",
+  );
+  expect(await projectAssets(restored)).toHaveLength(0);
+  expect(await history.assets(restored)[0].blob.text()).toBe("original");
+  await saveProject(restored, history.assets(restored));
+  expect(await (await projectAssets(restored))[0].blob.text()).toBe("original");
+});

@@ -93,6 +93,7 @@ export type BoardProps = {
   onSize: Data["onSize"];
   onEdit: Data["onEdit"];
   onDrop: (nodeId: string, x: number, y: number) => void;
+  onFilesDrop: (files: File[], x: number, y: number) => void;
   onViewport: (v: Viewport) => void;
 };
 function Inner(props: BoardProps) {
@@ -179,6 +180,12 @@ function Inner(props: BoardProps) {
   const drop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
+      if (props.readOnly) return;
+      if (e.dataTransfer.files.length) {
+        const p = rf.screenToFlowPosition({ x: e.clientX, y: e.clientY });
+        props.onFilesDrop([...e.dataTransfer.files], p.x, p.y);
+        return;
+      }
       try {
         const value: unknown = JSON.parse(
           e.dataTransfer.getData("application/visualyrc-node"),
