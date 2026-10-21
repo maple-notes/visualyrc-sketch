@@ -1683,7 +1683,7 @@ export default function App() {
                         aria-label="Section start"
                         type="number"
                         min="0"
-                        step=".1"
+                        step="any"
                         value={modal.start}
                         onChange={(e) =>
                           setModal({ ...modal, start: e.target.value })
@@ -1696,7 +1696,7 @@ export default function App() {
                         aria-label="Section end"
                         type="number"
                         min="0"
-                        step=".1"
+                        step="any"
                         value={modal.end}
                         onChange={(e) =>
                           setModal({ ...modal, end: e.target.value })

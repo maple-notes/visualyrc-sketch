@@ -315,3 +315,11 @@ individual durations and slot gaps. `pageReorderProps` handles the same internal
 native page drag MIME in both rails; existing Move earlier/later use the same command.
 Post-audio ranges need no schema version change: their existing time fields remain
 finite positive seconds; import now accepts ranges beyond the referenced duration.
+
+### Fractional section values — 2026-10-20
+
+Section start/end fields use number inputs with step="any". Auto-generated audio
+boundaries and pointer trims can contain fractions that are not multiples of0.1.
+Do not round stored/default values merely to satisfy a browser step constraint:
+that can move boundaries or overlap an adjacent section. Domain validation still
+checks finite values, ordering, overlap and the planning limit when saving.

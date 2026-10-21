@@ -191,3 +191,27 @@ Temporary generated fixtures: tmp, approximately1.7MiB. Neither is committed.
 The user project on4180 was left intact; final tests used4190. Reload only after
 Saved is visible, and keep the same origin to retain browser-local projects.
 Human final acceptance and learning reflection remain pending; no push/deployment.
+
+## Fractional-value regression — 2026-10-20 19:13 HST
+
+The learner's screenshot showed a native step mismatch for automatically populated
+section values60.0994144685444 and90.09941446854441. Reproduced in an isolated4190
+tab: both range fields matched :invalid and Save kept the dialog open. Both inputs
+now accept arbitrary decimal precision with step="any"; no boundary rounding and
+no change to domain overlap/order/finite-value checks.
+
+- Typecheck, ESLint,36 unit tests, production build and cached Prettier checks: pass.
+- Actual Codex browser suite:30 core +20 extended +8 media +39 review =97 passes,
+  completed2026-10-21T05:13:49.775Z, source fingerprint
+  `0084beab93aad96ea30749fcf44102e8d74cd19f280f71f9a9eee3909e1d71d3`.
+- New checks use the exact screenshot values, verify no native-invalid fields,
+  then save through the real button and confirm the retained fractional boundary.
+- Saved-evidence check and git diff whitespace check pass. Browser console errors:0.
+- The resize runner uses the top-right L grip after Fit. In one viewport its former
+  bottom-right target was covered by the selection tray; this is a test targeting
+  adjustment, not a claimed product fix for overlays.
+- Existing4173 user project was not modified by tests. Reload there after Saved.
+- No new dependencies/downloads. Existing dependency total324MiB; dist4.3MiB;
+  local outputs/verification1.8MiB and temporary fixtures1.7MiB. These remain ignored.
+- The previously documented Safari/native Finder ingress and dependency-audit limits
+  remain. No push or deployment.

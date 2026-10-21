@@ -27,7 +27,7 @@ for (const file of [
 assert.equal(report.core, 30);
 assert(report.extra >= 20);
 assert.equal(report.media, 8);
-assert(report.review >= 37);
+assert(report.review >= 39);
 assert.equal(
   report.total,
   report.core + report.extra + report.media + report.review,

@@ -73,11 +73,11 @@ export async function runExtra(tab, browser, root) {
   await b("Shared edit across both pages").click();
   await b("Fit").click();
   await new Promise((resolve) => setTimeout(resolve, 350));
-  const grip = await pw.locator(".corner-grip.bottom.right").evaluate((el) => {
+  const grip = await pw.locator(".corner-grip.top.right").evaluate((el) => {
     const r = el.getBoundingClientRect();
     return [r.x + r.width / 2, r.y + r.height / 2];
   });
-  await tab.ax.drag(grip, [grip[0] + 60, grip[1] + 30]);
+  await tab.ax.drag(grip, [grip[0] + 60, grip[1] - 30]);
   await state();
   const width = await pw
     .getByLabel("Placement width", { exact: true })
@@ -96,11 +96,11 @@ export async function runExtra(tab, browser, root) {
   await b("reference.png").click();
   await b("Fit").click();
   await new Promise((resolve) => setTimeout(resolve, 350));
-  const ig = await pw.locator(".corner-grip.bottom.right").evaluate((el) => {
+  const ig = await pw.locator(".corner-grip.top.right").evaluate((el) => {
     const r = el.getBoundingClientRect();
     return [r.x + r.width / 2, r.y + r.height / 2];
   });
-  await tab.ax.drag(ig, [ig[0] + 40, ig[1] + 30]);
+  await tab.ax.drag(ig, [ig[0] + 40, ig[1] - 30]);
   await state();
   const iw = Number(
       await pw

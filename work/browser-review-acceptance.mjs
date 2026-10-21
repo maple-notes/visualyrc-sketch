@@ -356,6 +356,38 @@ export async function runReview(tab, root) {
     root + "/outputs/verification/silent-sections.png",
     await tab.screenshot({ fullPage: false }),
   );
+  await b("Add page").click();
+  await pw
+    .getByLabel("Page title", { exact: true })
+    .fill("Fractional boundary");
+  await pw
+    .getByLabel("Section start", { exact: true })
+    .fill("60.0994144685444");
+  await pw.getByLabel("Section end", { exact: true }).fill("90.09941446854441");
+  check(
+    (await pw.locator(".range-fields input:invalid").count()) === 0,
+    "fractional seconds are valid native form values",
+  );
+  await b("Save page").click();
+  await pw
+    .getByRole("slider", {
+      name: "Fractional boundary section start",
+      exact: true,
+    })
+    .waitFor({ state: "visible" });
+  check(
+    Math.abs(
+      Number(
+        await pw
+          .getByRole("slider", {
+            name: "Fractional boundary section start",
+            exact: true,
+          })
+          .getAttribute("aria-valuenow"),
+      ) - 60.0994144685444,
+    ) < 0.000001,
+    "fractional page settings save without precision loss",
+  );
   const errors = await tab.dev.logs({ levels: ["error"], limit: 30 });
   check(
     errors.length === 0,

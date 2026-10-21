@@ -39,8 +39,8 @@ pointer gestures. It does not inject application state, fetch data behind the UI
 or substitute an external browser. `browser-acceptance.mjs` checks the 30 core
 assertions; `browser-extra-acceptance.mjs` checks 20 gestures/deletion/audio/locking
 assertions; `browser-media-acceptance.mjs` checks 8 codec and natural-ending assertions;
-`browser-review-acceptance.mjs` checks 37 final-review assertions including actual
-clipboard keys, trim drag, media undo, Markdown and Mermaid. Total: 95 assertions.
+`browser-review-acceptance.mjs` checks 39 final-review assertions including actual
+clipboard keys, trim drag, media undo, Markdown and Mermaid. Total: 97 assertions.
 Native Finder file drags are not automated by the installed runtime. A real Canvas
 file chooser tests the shared ingestion path; native external ingress needs a human check.
 

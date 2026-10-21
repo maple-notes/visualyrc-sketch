@@ -142,3 +142,11 @@ readiness and learning reflection unchecked until the learner completes them.
   commit steps in review-plan.md are not separate fabricated historical commits.
 - Learner retry, explicit readiness, code tour/reflection and6-ship remain pending.
   No push, deployment or work in the separate website repository occurred.
+
+### Fractional-value correction
+
+The learner reported that the native number-input step constraint rejected an
+automatically filled value60.0994144685444. Reproduced two invalid fields and a
+blocked Save. Changed both section fields to step="any"; original precision and
+domain validation remain intact. Added native-validity and actual-save browser
+regressions using the exact screenshot values; verification.md records the result.
