@@ -117,7 +117,8 @@ Implements `prd.md > Optional Audio and Timed Pages`.
 One HTMLAudioElement owns playback; persist no playing flag. Recreate object URL
 from Asset Blob, revoke after source replacement/unmount. Validate a candidate
 source before replacing old one. WAV/MP3 initial acceptance only after decode tests.
-Page audio range includes audioAssetId; bounds validated against that asset duration.
+Page audio range includes audioAssetId; bounds remain finite/nonoverlapping; approved post-audio planning can exceed media
+duration, with a seven-day planning ceiling.
 Common transform y=origin+seconds*scale drives ticks, ranges, waveform and playhead.
 Clock comes from currentTime, sampled every 100ms;
 update player/playhead slice, not all cards or IndexedDB every frame.
@@ -228,7 +229,9 @@ Do not publish the reference game images or local learner profile.
 No server/accounts; one active local workspace and explicit portable backup.
 No auto semantic layout; deterministic initial placement plus manual Graph positions.
 No destructive overwrite on import; new project preserves the current one.
-No full rich editor, undo stack or waveform boundary dragging in initial proposal.
+The initial proposal omitted a rich editor, undo stack and boundary dragging.
+The approved hands-on review now adds session history, boundary grips and safe
+Markdown/Mermaid rendering as described below; no full WYSIWYG editor.
 These details are recommendations, not permission to cut requested capabilities.
 
 ## Verification and Performance Learning
@@ -280,3 +283,35 @@ Review format still unset; Markdown supplied now, HTML available if requested.
 - Same-source eager/lazy archive builds measure initial JS bytes; no FPS claim.
 - Hosting is a future handoff to the owner's separate Cloudflare Pages website.
   This task neither edits that repository nor deploys or pushes application code.
+
+## Hands-on review implementation — 2026-10-20
+
+`domain/history.ts` retains 50 prior Project snapshots and originals referenced by
+past/current/future states. Viewport-only writes do not enter history. Undo/redo use
+normal queued atomic writes. Only the latest queued success clears pending media;
+retry/export can recover originals from history after an earlier database cleanup.
+`domain/clipboard.ts` validates same-project reference payloads and creates independent
+Placements. DOM clipboard events carry custom MIME plus text; editor fields keep
+native behavior. Images use the existing media validator and one canonical command.
+
+`assignAudio` distributes pages in order across duration. `trimRange` clamps preview
+to neighbors/duration with positive lengths, and `trimSection` commits once on pointer
+release. Escape/cancel abandons preview; arrows adjust 0.1 seconds, Shift adjusts 1.
+`MarkdownContent` renders react-markdown10.1.0 + remark-gfm4.0.1 with HTML disabled.
+`MermaidDiagram` lazy-loads mermaid11.16.1, caps input at10,000 characters and200 edges,
+rejects configuration/remote resources/math, and puts output in a scriptless sandbox
+with restrictive CSP. Existing text strings and archive schema remain unchanged.
+
+These exact dependencies were authorized and installed locally. npm audit reports
+one low-severity KaTeX advisory through Mermaid (two package alerts); math input is
+blocked. A major Mermaid upgrade requires separate compatibility work; do not claim
+that these controls remove the dependency advisory.
+
+`nextPageRange` defaults after the greatest section end. `timelineExtent` adds30
+seconds of planning headroom, up to seven days. Audio waveform/seek/playhead retain
+the real source duration; the end marker distinguishes silent planning below it.
+`reorderPage` normalizes Page.order, moves whole timed pages and retains their
+individual durations and slot gaps. `pageReorderProps` handles the same internal
+native page drag MIME in both rails; existing Move earlier/later use the same command.
+Post-audio ranges need no schema version change: their existing time fields remain
+finite positive seconds; import now accepts ranges beyond the referenced duration.

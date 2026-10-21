@@ -90,9 +90,11 @@ section boundaries and horizontal playhead share a vertical linear time scale.
 Click/drag seeks. Recommended: select page without seeking; separate Play from
 section action; optional Follow off initially, follows timeline only. Playback never
 moves Canvas or changes pages automatically. These semantics were approved in the planning review.
-Recommended ranges: at most one per page, nonoverlapping, gaps/untimed pages allowed;
-edit start/end in fields. Replacing audio preserves content and asks how to handle
-existing ranges before applying. Invalid/unsupported file leaves prior source intact.
+Ranges: at most one per page, nonoverlapping, gaps/untimed pages allowed;
+planning sections may extend beyond audio duration into silent planning space;
+edit start/end in fields or drag the top/bottom section grips. Accepting audio
+distributes existing pages equally in page order; replacement confirms redistribution
+and preserves content. Invalid/unsupported file leaves the prior source intact.
 Acceptance: known timestamps match waveform/range/playhead; no-audio loop still works.
 Source: `scope.md > The POC Boundary`.
 
@@ -125,9 +127,9 @@ placement geometry, relationship navigation, durable local and portable media,
 optional audio, keyboard alternatives and recovery from actual failures.
 
 ## Deferred From the POC
-Rich embeds/URL previews/drawing, advanced graph modes, complete undo history,
+Rich embeds/URL previews/drawing, advanced graph modes, persistent/unlimited undo history,
 background sync and large-library optimization. No irreversible operation relies
-on deferred undo: use confirmation and preserve canonical content by default.
+on undo alone: use confirmation and preserve canonical content by default.
 
 ## Possible Later Enhancements
 Graph transition polish and improved timeline editing after the core loop is stable.
@@ -141,3 +143,31 @@ Planning review approved full audio scope, ZIP portable archives, audio/range
 navigation semantics and explicit deletion semantics. Before public release: repository
 ownership linkage, license, sample media rights and optional host. Review format is
 not established; this draft is presented as Markdown without claiming that preference.
+
+## Approved hands-on review revisions — 2026-10-20
+
+- Cmd/Ctrl+C/V/X copies/pastes/cuts a Canvas reference, never silently deletes its
+  canonical Node. References can move between pages in the same project. Graph
+  copy is allowed; paste/cut ask for Canvas. Plain text and image clipboard ingress
+  create canonical content. Native input-field editing keeps browser shortcuts.
+- Cmd/Ctrl+Z and Shift+Cmd/Ctrl+Z undo/redo project edits, retaining 50 prior states
+  and their media in this session. Reload/project switch starts a new history.
+- Canvas accepts local PNG/JPEG/WebP drops with staggered placements, using the same
+  validated ingestion as the chooser; each adds one Node and Saezutter post.
+- Text source supports Markdown/GFM and fenced Mermaid. No raw HTML or remote image
+  fetches. Diagram configuration, external resources and math are disabled; errors
+  stay visible without changing source. Diagrams render lazily in a sandbox.
+- The left rail owns its collapse/reopen control; Saezutter remains a collapsible
+  sidebar with no duplicate Canvas toggle. Both views remain light.
+
+### New pages and reordering — learner decision2026-10-20
+
+Create pages at the end of the page order. With audio loaded, prefill a new timed
+section after all existing sections, including after the actual audio ends. Start
+with the preceding section length (at most30 seconds), adjustable immediately.
+Select and reveal the new section. Silent planning does not generate extra audio or
+extend the playback clock. Timeline planning is bounded to seven days.
+Drag pages before/after another page. With timed pages, move whole sections while
+retaining each page's duration, original content and the sequence of gaps. The
+existing Move earlier/later buttons provide a keyboard alternative. Undo restores
+both page order and timings. Import/export retains post-audio planning sections.

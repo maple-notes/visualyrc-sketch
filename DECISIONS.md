@@ -100,3 +100,14 @@ Release license, asset rights and hosting remain to be finalized; file limits ne
 real-browser verification. User authorized committing and pushing planning changes
 to their existing maple-notes/visualyrc-sketch repository. App implementation has
 not been authorized; 5-build checklist/order review remains next.
+
+## Approved implementation and hands-on review — 2026-10-20
+
+The later explicit user instructions authorized5-build and the app implementation;
+the older no-implementation statement above is historical. The user has now tried
+the working app and requested timeline controls, image ingress, basic shortcuts,
+Markdown and Mermaid. The owner explicitly approved project-local react-markdown
+10.1.0, remark-gfm4.0.1 and mermaid11.16.1 installation with the stated footprint.
+Session history is bounded to50 prior edits; copied placements share canonical
+content. Replacing audio confirms equal redistribution. Native editor shortcuts
+remain native. Publication/push and final readiness are not inferred from this work.

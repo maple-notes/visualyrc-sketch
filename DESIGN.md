@@ -118,3 +118,11 @@ prototype verification. Preserve the selected freeform Graph composition,
 collapsed Saezutter rail and compact location/action tray; no page-region frames.
 Reference originals are retained in outputs/design-selected/ for provenance.
 Do not implement the app until the user explicitly resumes implementation.
+
+## Approved review refinements — 2026-10-20
+
+The light layout remains approved. Put the page-rail toggle in its left header;
+remove the duplicate Canvas Saezutter toggle. Use square text/feed cards with only
+drop shadows, type/image icons, thin L-shaped image grips and a quiet grid.
+Audio sections have explicit top/bottom trim targets, with no magnetic movement.
+Markdown/diagram content uses the same card surface and scrolls inside its bounds.

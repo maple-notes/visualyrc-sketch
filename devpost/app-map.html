@@ -223,11 +223,34 @@ npm run preview
       The actual browser runner is <code>work/browser-suite.mjs</code>; the
       saved-evidence checker does not drive a browser.
     </p>
+    <section>
+      <h2>Hands-on review additions</h2>
+      <p>
+        <a href="../src/domain/history.ts">EditHistory</a> retains session
+        snapshots and original media for undo, redo and recovery.
+        <a href="../src/domain/clipboard.ts">Clipboard commands</a> create
+        independent placements of the same canonical Node.
+      </p>
+      <p>
+        <a href="../src/domain/model.ts">Timeline domain commands</a> assign
+        equal ranges, append pages beyond audio end, trim boundaries and reorder
+        whole pages while retaining lengths.
+        <a href="../src/components/pageReorder.ts">Page drag handlers</a> serve
+        both audio and ordinary page rails.
+      </p>
+      <p>
+        <a href="../src/components/MarkdownContent.tsx">MarkdownContent</a>
+        renders stored source;
+        <a href="../src/components/MermaidDiagram.tsx">MermaidDiagram</a>
+        lazy-loads a strict renderer and isolates SVG output. This is a code
+        map, not evidence that the learner has completed the tour.
+      </p>
+    </section>
     <footer>
-      Snapshot: the verified 2026-10-20 core build. Source commit is recorded in
-      verification.md. This map can drift after later code changes. No network,
-      script, font service, analytics or private learner information is used by
-      this page.
+      Snapshot: the 2026-10-20 core build and hands-on review revisions. Source
+      commit is recorded in verification.md. This map can drift after later code
+      changes. No network, script, font service, analytics or private learner
+      information is used by this page.
     </footer>
   </body>
 </html>

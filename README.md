@@ -32,13 +32,29 @@ their ports differ. Export/import a `.vsketch` file to transfer a project betwee
    **Open in page** returns to a particular placement.
 4. Use **Export project** to download a portable `.vsketch` backup. Import creates
    a new project, preserving the current project.
-5. Optionally load WAV or MP3 audio. Edit a page's section start/end in seconds.
-   Page selection does not seek; **Play from section** both seeks and plays.
+5. Optionally load WAV or MP3 audio. Existing pages are distributed equally over
+   the duration. Trim section edges by dragging or editing start/end fields.
+   New pages append as immediately adjustable sections, including in silent planning
+   space after the audio ends. Drag pages to reorder whole sections; their lengths
+   and content stay intact. Page selection does not seek; **Play from section** both seeks and plays.
 
 Both views use the selected light palette. Text and feed cards have square corners
 and a flat drop shadow. The Saezutter sidebar and page rail can collapse. Images
 keep their aspect ratio through the L-shaped resize grips; numeric fields provide
 an alternative. Arrow keys move selected nodes; Space-drag pans the board.
+
+## Editing
+
+Drop PNG/JPEG/WebP files onto Canvas, or use **Add image**. Copy/paste/cut a selected
+reference with Cmd/Ctrl+C/V/X; copying between pages shares the same content.
+Cmd/Ctrl+Z and Shift+Cmd/Ctrl+Z undo/redo up to50 project edits in this session.
+Reload/project switching clears history; editing text fields keeps native shortcuts.
+
+Text accepts Markdown/GFM and fenced `mermaid` blocks. Edit the source as text.
+Raw HTML, remote Markdown images, diagram configuration, remote resources and math
+are disabled. Diagrams load on demand; invalid diagrams show an error. The installed
+Mermaid dependency has a low-severity transitive KaTeX advisory; see the verification
+report for the actual audit status and limits.
 
 ## Saving and recovery
 

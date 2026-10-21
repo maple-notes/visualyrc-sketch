@@ -6,7 +6,7 @@ status: approved
 
 Build mode: fast — user explicitly delegated unattended implementation through HST 17:30.
 The user requested all work without waiting for checkpoints; order selected by agent
-under that instruction. Human feedback/final readiness are still not performed.
+under that instruction. The learner has now provided hands-on feedback; final readiness remains pending.
 
 ## Slices
 
@@ -62,7 +62,7 @@ under that instruction. Human feedback/final readiness are still not performed.
 
 ## Hands-on Checkpoints
 - [ ] Early usable behavior explored by learner — deferred during explicitly requested absence; agent browser checks proceed.
-- [ ] Final kick-the-tires exploration and feedback completed by learner
+- [x] Final kick-the-tires exploration and feedback completed by learner — annotated screenshot and editing feedback received2026-10-20; retry after fixes remains pending.
 
 ## Final Review
 - [ ] Final review complete — feedback resolved and learner confirms ready to ship
@@ -74,7 +74,7 @@ under that instruction. Human feedback/final readiness are still not performed.
 
 Activity and evidence: agent-only Codex browser acceptance, 58 passing assertions;
 22 passing unit tests. See verification.md for actual evidence and limits.
-Learner activity has not yet happened.
+Learner hands-on exploration happened on2026-10-20; the learning tour/reflection has not.
 Route and stops: reference route prepared: app.tsx composer/run →
 domain/model.ts postText/place → storage/db.ts saveProject. Not toured with learner.
 Edit outcome: optional learner edit has not been offered during absence.
@@ -123,3 +123,22 @@ Activity mode: agent browser verification now, learner review later.
   behavior or desired corrections. Keep all human-completion boxes unchecked until
   that feedback and final readiness actually happen. No additional features,
   publication, push or deployment are authorized by this resume record.
+
+## Hands-on review revisions — 2026-10-20
+
+The learner returned and supplied actual feedback. Follow `review-plan.md` for
+rail placement, automatic sections, trim grips, image drops, session editing history,
+Markdown and Mermaid. Dependency installation was explicitly approved. Keep final
+readiness and learning reflection unchecked until the learner completes them.
+
+- Completed the authorized hands-on revisions in local commit `e44dc8d`.
+  Verified36 unit tests and95 actual Codex-browser assertions, including page drag
+  in both rails, post-audio range/reload, clipboard keys, original-media undo,
+  Markdown and sandboxed Mermaid. Exact commands and limitations: verification.md.
+- Recorded the learner's follow-up decision: new pages may occupy silent planning
+  after audio end; move whole pages through drag-and-drop with duration preserved.
+- Consolidated these connected review fixes in one implementation checkpoint after
+  integration tests, followed by a documentation checkpoint. Suggested per-task
+  commit steps in review-plan.md are not separate fabricated historical commits.
+- Learner retry, explicit readiness, code tour/reflection and6-ship remain pending.
+  No push, deployment or work in the separate website repository occurred.

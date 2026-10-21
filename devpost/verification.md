@@ -135,3 +135,59 @@ third-party notices are recorded separately.
 Human final review, the official learning wrap-up, demo recording, the learner's own
 submission and any public publication remain open. No registration, human feedback,
 submission, survey answer or release-license approval is claimed by this report.
+
+## Hands-on review revisions — 2026-10-20 18:58 HST
+
+Implementation commit: `e44dc8d`. This supplements the earlier core-build snapshot;
+it does not retrospectively replace its measurements or the human learning record.
+
+- `npm run typecheck`: pass.
+- `npm run lint`: pass.
+- `npm test`:36 tests pass across7 files.
+- Cached Prettier `--check src work/*.mjs`: pass; no formatter installation.
+- `npm run build`: pass; the existing large-chunk warning remains.
+- Actual Codex in-app browser against disposable `http://127.0.0.1:4190/`:
+  core30 + extended20 + media8 + review37 =95 passing assertions.
+  Completion:2026-10-21T04:58:12.303Z. Browser console errors:0.
+- `npm run verify:browser-evidence`: pass for source fingerprint
+  `5d17971977fb99663831d22dd4c49d37d53f17f837c11f4dc7b661be8dbd04d7`.
+  This checks the saved actual-run reports; it does not execute the browser.
+- `git diff --check`: pass. Private learner profile, media fixtures, screenshots,
+  local evidence and the nested GitHub Desktop checkout remain unstaged/ignored.
+
+New actual UI checks include left-rail toggle placement, equal audio assignment,
+section-edge pointer/keyboard trims, source/range restoration after Undo, native
+Cmd+C/V/X/Z/Shift+Z, cross-page shared references, native text-field Undo, image
+original recovery, Markdown headings/lists/emphasis, valid Mermaid output and its
+sandbox/CSP, visible unsafe-diagram rejection, new post-audio sections with immediate
+grips, extension/reload, actual page drag in ordinary and timed rails, duration/order
+Undo, and disabling play for sections wholly after audio end. Archive unit tests
+also roundtrip post-audio sections without changing actual media duration.
+
+Verification found and repaired an audio-ended clock race. Grip tests initially
+hit the sidebar when a narrow viewport hid the node corner; they now operate the
+visible Fit control before resizing. A read-only review found two recovery cases:
+older writes clearing newer pending originals, and unused pending media inflating
+retry/export sizes. Writes now clear pending media only for the latest success,
+filter originals to current references, and export/retry recover from session history.
+
+The browser runtime provides native file choosers but no documented native external
+file-drag API. Canvas chooser ingestion and real Saezutter/page drags passed; actual
+Finder-to-browser file ingress remains unautomated. Renderer-specific portable
+browser roundtrip was not separately driven; the unchanged stored text strings use
+the archive path covered by the existing tests. Safari/physical devices remain unchecked.
+
+Dependency install was explicitly approved for react-markdown10.1.0, remark-gfm4.0.1,
+mermaid11.16.1. Actual node_modules total is324MiB, approximately158MiB added versus
+the earlier100–150MiB estimate. Production dist is4.3MiB; Mermaid loads lazily on
+visible diagrams. These are disk sizes, not browser memory or frame-rate results.
+`npm audit --json` reports2 low package alerts from one transitive KaTeX advisory
+(GHSA-238p-pmpm-9mq7),0 moderate/high/critical. Mermaid math/configuration/external
+resources are disabled and SVG is sandboxed; this does not clear the dependency
+advisory. Do not apply the proposed major-version fix without compatibility review.
+
+Generated local evidence/screenshots/logs: outputs/verification, approximately1.8MiB.
+Temporary generated fixtures: tmp, approximately1.7MiB. Neither is committed.
+The user project on4180 was left intact; final tests used4190. Reload only after
+Saved is visible, and keep the same origin to retain browser-local projects.
+Human final acceptance and learning reflection remain pending; no push/deployment.
