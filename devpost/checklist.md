@@ -150,3 +150,17 @@ automatically filled value60.0994144685444. Reproduced two invalid fields and a
 blocked Save. Changed both section fields to step="any"; original precision and
 domain validation remain intact. Added native-validity and actual-save browser
 regressions using the exact screenshot values; verification.md records the result.
+
+## Second review revisions 2026-10-25
+
+The learner reviewed screenshots of seeded demo projects and asked for four fixes:
+blank lines in Markdown cards, Graph cards that could not grow or be resized,
+overlapping labels in short audio sections, and a fixed-height Mermaid frame. The
+same pass made the monospace font consistent across browsers.
+
+- Fixed in commits `06f03aa`, `5e0317e` and `b048e22`, pushed to `origin/main`
+  with the learner's approval.
+- Verified with typecheck, lint, build and 37 unit tests. A Playwright script
+  checked Graph card resize and growth. The Codex in-app browser suite was not
+  rerun; verification.md records the scope.
+- Final readiness, the code tour and 6-ship remain open.

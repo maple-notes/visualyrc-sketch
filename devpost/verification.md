@@ -4,6 +4,25 @@ Status: the local P0 implementation is mechanically verified. The learner's fina
 hands-on review and learning reflection have not happened while they are away.
 This report is technical evidence, not a human-written contest submission.
 
+## Update 2026-10-25: review fixes
+
+After the learner's hands-on review, four display problems were fixed in commits
+`06f03aa`, `5e0317e` and `b048e22`:
+
+- Markdown cards showed a blank line between every heading, list and paragraph.
+- Graph cards had a fixed 260 by 160 frame, so longer notes spilled out. Text cards
+  now grow with their text and keep an optional saved size.
+- Short audio sections let the title, time range and buttons overlap.
+- Mermaid diagrams sat in a frame fixed at 200 px high, and the monospace font
+  differed between browsers.
+
+Checks run on this source: `npm run typecheck`, `npm run lint` and `npm run build`
+pass, and `npm test` passes 37 tests in seven files. A new unit test covers the
+saved Graph card size. A Playwright script with the installed Chrome checked
+resize, persistence and growth of a Graph card, and rendered sections of 3, 4 and
+7 seconds. The 58-assertion Codex in-app browser suite below was not rerun for
+these commits.
+
 ## Result
 
 - `npm run typecheck`: pass, TypeScript strict checking.

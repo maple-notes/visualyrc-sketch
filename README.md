@@ -4,6 +4,17 @@ A local spatial workspace for ideas, references, and creative planning. Each pag
 its own canvas. Saezutter captures text and images; Graph connects the same content
 across the project. No login, server, paid API, or cloud database is required.
 
+## Who it is for
+
+Visualyrc Sketch was built for planning music videos and short films. Load the
+song, and each page becomes one section of it, with its own board of notes and
+reference images.
+
+The same structure works for a course. Make one page per lecture, take notes on
+each, and link related ideas across lectures in Graph. Before an exam, the Graph
+shows which ideas from Week 1 return in Week 4, and **Open in page** jumps back to
+the lecture where you wrote them.
+
 ## Run locally
 
 Use Node.js 22. The repository includes an npm lockfile.
@@ -43,6 +54,14 @@ and a flat drop shadow. The Saezutter sidebar and page rail can collapse. Images
 keep their aspect ratio through the L-shaped resize grips; numeric fields provide
 an alternative. Arrow keys move selected nodes; Space-drag pans the board.
 
+In Graph, a text card grows to fit its text. Select a card and drag its corner grip
+to make it larger in advance; the project saves that size, and a longer note still
+grows past it. Cards with diagrams start wider.
+
+Each section in the audio rail is as tall as its share of the song. Short sections
+switch to a compact label: first the page number goes, then the time range, and the
+shortest sections show the title only.
+
 ## Editing
 
 Drop PNG/JPEG/WebP files onto Canvas, or use **Add image**. Copy/paste/cut a selected
@@ -52,7 +71,8 @@ Reload/project switching clears history; editing text fields keeps native shortc
 
 Text accepts Markdown/GFM and fenced `mermaid` blocks. Edit the source as text.
 Raw HTML, remote Markdown images, diagram configuration, remote resources and math
-are disabled. Diagrams load on demand; invalid diagrams show an error. The installed
+are disabled. Diagrams load on demand and keep their own aspect ratio at the card's
+width; invalid diagrams show an error. The installed
 Mermaid dependency has a low-severity transitive KaTeX advisory; see the verification
 report for the actual audit status and limits.
 

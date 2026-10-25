@@ -1,26 +1,50 @@
-# Hackathon submission checklist (verify against live official rules)
+# Hackathon submission checklist
 
-Official source: https://learn-ai-basics.devpost.com/rules
+Official rules: https://learn-ai-basics.devpost.com/rules (read on 2026-10-25).
+Submissions close on October 26, 2026 at 5:00 pm Eastern Time.
 
-- [ ] Confirm eligibility, start date, deadline and timezone directly on Devpost.
-- [ ] Register and accept current official rules.
-- [x] Install and actually use the official Devpost Learn Skill Pack: planning1–4 approved;5-build used for implementation/checklist.
-- [x] Preserve official-skill planning artifacts under devpost/. Root drafts are historical and do not substitute for those outputs.
-- [ ] Confirm allowed use of additional agent skills, frameworks and design software.
-- [ ] Confirm new-project/original-code policy and attribution requirements.
-- [ ] Confirm public repository and license requirements.
-- [ ] Prepare functioning demo URL if required, README and installation steps.
-- [ ] Record short English demo showing post → canvas → graph → persistence.
-- [ ] Verify demo video duration and submission form requirements.
-- [ ] Remove secrets, personal information and unlicensed music/art.
+## Rules confirmed on 2026-10-25
+
+- The repository must be public on GitHub, GitLab or Bitbucket and include an open
+  source license that GitHub shows in the About section.
+- The repository must include the Skill Pack planning documents `scope.md`, `prd.md`
+  and `spec.md`. This repository keeps the approved versions in `devpost/` and the
+  earlier drafts at the root.
+- The submission needs a text description of the features.
+- The demo video must be shorter than three minutes, show the project running on its
+  intended device, and be public on YouTube or Vimeo. It may not use music or other
+  material without permission.
+- All materials must be in English.
+- The project must be new. Entrants must disclose pre-existing code. Visualyrc Sketch
+  contains no code from earlier projects. Codex and Claude Code wrote the code
+  during the submission period, directed by the entrant.
+
+## Status
+
+- [x] Install and use the official Devpost Learn Skill Pack: planning steps 1 to 4
+  approved; 5-build used for implementation and the checklist.
+- [x] Keep the Skill Pack planning artifacts under `devpost/`.
+- [x] Read the official rules and record the deadline and requirements above.
+- [x] README with installation steps and local run instructions.
+- [ ] Register and accept the rules on Devpost.
+- [ ] Add an open source license file.
+- [ ] Make the GitHub repository public.
+- [ ] Record the demo video, under three minutes, and publish it on YouTube or Vimeo.
+- [ ] Write the Devpost text description.
+- [ ] Check the repository and video for secrets, personal information and
+  unlicensed media. Keep music and sound effect files out of the repository.
 - [ ] Submit early enough to recover from upload or form errors.
 
-## Local build evidence — 2026-10-20
+## Demo video music
 
-P0 implementation and mechanical verification are recorded in devpost/checklist.md
-and devpost/verification.md. The official5-build human final review and learning
-wrap-up are still pending. Do not mark6-ship or submission complete.
-No live rule check was repeated during this local build. Existing rule/eligibility
-checkboxes remain open until actually confirmed. A short demo and human-authored
-submission remain required by the installed official curriculum. The user plans a
-later integration into a separate Cloudflare Pages website; no deployment happened.
+The background music is "Art Break" by Crep from OpenTracks
+(https://opentracks.com/en/bgm/detail/22956). The OpenTracks license allows its use
+in video contest entries and does not require credit. The video will credit
+the composer anyway. The license forbids redistributing the audio file, so the
+repository does not contain it.
+
+## Local build evidence
+
+`devpost/checklist.md` and `devpost/verification.md` record the build, the review
+fixes and the checks run. The 5-build final review and the learning wrap-up are
+still open; do not mark 6-ship or the submission complete until they are done.

@@ -126,3 +126,13 @@ remove the duplicate Canvas Saezutter toggle. Use square text/feed cards with on
 drop shadows, type/image icons, thin L-shaped image grips and a quiet grid.
 Audio sections have explicit top/bottom trim targets, with no magnetic movement.
 Markdown/diagram content uses the same card surface and scrolls inside its bounds.
+
+## Review refinements 2026-10-25
+
+Use one monospace stack everywhere: SF Mono where the browser exposes it, then
+Menlo. Chrome ignores `ui-monospace`, so naming Menlo keeps labels identical across
+browsers. Graph text cards take their height from their content; a user-set size
+is a minimum, saved in the Graph layout. Audio sections keep their time-based
+height, and their labels drop the page number, then the time range, then the
+buttons as the section gets shorter. Mermaid frames follow the diagram's aspect
+ratio instead of a fixed height.
