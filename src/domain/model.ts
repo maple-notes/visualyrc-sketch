@@ -71,7 +71,19 @@ export const projectSchema = z
     edges: z
       .array(z.object({ id, source: id, target: id }).strict())
       .max(20000),
-    graph: z.array(z.object({ nodeId: id, ...point }).strict()).max(10000),
+    graph: z
+      .array(
+        z
+          .object({
+            nodeId: id,
+            ...point,
+            // Optional user-chosen card size; text cards still grow to fit.
+            width: z.number().finite().min(120).max(20000).optional(),
+            height: z.number().finite().min(64).max(20000).optional(),
+          })
+          .strict(),
+      )
+      .max(10000),
     viewports: z
       .array(
         z

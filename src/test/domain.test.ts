@@ -87,3 +87,18 @@ it("rejects project names outside the portable schema at creation", () => {
   expect(() => createProject("x".repeat(201))).toThrow();
   expect(createProject("x".repeat(200)).name).toHaveLength(200);
 });
+describe("graph card size", () => {
+  it("keeps an optional size and rejects sizes below the card minimum", () => {
+    const p = postText(createProject(), "a");
+    const nodeId = p.nodes[0].id;
+    const sized = revise(p, (n) => {
+      n.graph.push({ nodeId, x: 0, y: 0, width: 320, height: 240 });
+    });
+    expect(sized.graph[0]).toMatchObject({ width: 320, height: 240 });
+    expect(() =>
+      revise(p, (n) => {
+        n.graph.push({ nodeId, x: 0, y: 0, width: 20, height: 240 });
+      }),
+    ).toThrow();
+  });
+});

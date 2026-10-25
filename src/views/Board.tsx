@@ -30,6 +30,7 @@ type Data = {
   onSize: (id: string, w: number, h: number, x: number, y: number) => void;
   onEdit: (id: string) => void;
   onSelect: (id: string, placementId?: string) => void;
+  minHeight?: number;
 };
 type CardNode = Node<Data>;
 function Card({ id, data, selected }: NodeProps<CardNode>) {
@@ -40,6 +41,7 @@ function Card({ id, data, selected }: NodeProps<CardNode>) {
         (selected ? "selected " : "") +
         (data.content.kind === "image" ? "image-material" : "text-material")
       }
+      style={data.minHeight ? { minHeight: data.minHeight } : undefined}
       role="button"
       tabIndex={0}
       aria-label={(data.content.kind === "text"
@@ -54,17 +56,15 @@ function Card({ id, data, selected }: NodeProps<CardNode>) {
       }}
       onDoubleClick={() => data.onEdit(data.content.id)}
     >
-      {!data.graph && (
-        <NodeResizer
-          isVisible={selected && !data.readOnly}
-          minWidth={120}
-          minHeight={64}
-          keepAspectRatio={data.content.kind === "image"}
-          handleClassName="corner-grip"
-          lineStyle={{ border: 0 }}
-          onResizeEnd={(_, p) => data.onSize(id, p.width, p.height, p.x, p.y)}
-        />
-      )}
+      <NodeResizer
+        isVisible={selected && !data.readOnly}
+        minWidth={120}
+        minHeight={64}
+        keepAspectRatio={data.content.kind === "image"}
+        handleClassName="corner-grip"
+        lineStyle={{ border: 0 }}
+        onResizeEnd={(_, p) => data.onSize(id, p.width, p.height, p.x, p.y)}
+      />
       {data.graph && (
         <Handle type="target" position={Position.Left} isConnectable={false} />
       )}
@@ -105,6 +105,10 @@ function Inner(props: BoardProps) {
       graph
         ? project.nodes.map((n, i) => {
             const pos = project.graph.find((g) => g.nodeId === n.id);
+            // Diagrams need more room than prose to stay legible.
+            const diagram = n.kind === "text" && n.text.includes("```mermaid");
+            const width = pos?.width ?? (diagram ? 440 : 260);
+            const height = pos?.height ?? (n.kind === "image" ? 220 : 120);
             return {
               id: n.id,
               type: "material",
@@ -112,11 +116,14 @@ function Inner(props: BoardProps) {
               position: pos
                 ? { x: pos.x, y: pos.y }
                 : { x: 100 + (i % 3) * 340, y: 100 + Math.floor(i / 3) * 250 },
-              width: 260,
-              height: n.kind === "image" ? 220 : 160,
+              // Text cards grow with their content; images keep a fixed frame.
+              ...(n.kind === "image"
+                ? { width, height, style: { width, height } }
+                : { style: { width } }),
               data: {
                 content: n,
                 graph: true,
+                minHeight: n.kind === "image" ? undefined : height,
                 readOnly: props.readOnly,
                 onSize: props.onSize,
                 onEdit: props.onEdit,

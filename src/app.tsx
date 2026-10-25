@@ -320,6 +320,11 @@ export default function App() {
         revise(p, (n) => {
           const a = n.placements.find((a) => a.id === id);
           if (a) Object.assign(a, { width: w, height: h, x, y });
+          // Graph cards use the content ID as their node ID.
+          else if (n.nodes.some((c) => c.id === id)) {
+            n.graph = n.graph.filter((g) => g.nodeId !== id);
+            n.graph.push({ nodeId: id, x, y, width: w, height: h });
+          }
         }),
       ),
     [run],
@@ -1069,8 +1074,9 @@ export default function App() {
                   run((p) =>
                     revise(p, (n) => {
                       if (mode === "graph") {
-                        n.graph = n.graph.filter((g) => g.nodeId !== id);
-                        n.graph.push({ nodeId: id, x, y });
+                        const g = n.graph.find((g) => g.nodeId === id);
+                        if (g) Object.assign(g, { x, y });
+                        else n.graph.push({ nodeId: id, x, y });
                       } else {
                         const a = n.placements.find((a) => a.id === id);
                         if (a) Object.assign(a, { x, y });
