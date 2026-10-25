@@ -136,8 +136,7 @@ files remain historical design context. Open [the app map](devpost/app-map.html)
 offline for code locations and one concrete learning example.
 
 [Third-party notices](THIRD_PARTY_NOTICES.md) record the installed dependency licenses.
-The project's own release license remains the owner's decision; this repository
-does not yet grant an open-source license for original project code. No reference
+The original project code is released under the [MIT License](LICENSE). No reference
 artwork, personal learner profile, or proprietary code from other Visualyrc products
 is included. Human final review, demo video, human-written submission, and any
 publication remain separate from the verified local build.

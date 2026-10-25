@@ -27,7 +27,7 @@ Submissions close on October 26, 2026 at 5:00 pm Eastern Time.
 - [x] Read the official rules and record the deadline and requirements above.
 - [x] README with installation steps and local run instructions.
 - [ ] Register and accept the rules on Devpost.
-- [ ] Add an open source license file.
+- [x] Add an open source license file (MIT).
 - [ ] Make the GitHub repository public.
 - [ ] Record the demo video, under three minutes, and publish it on YouTube or Vimeo.
 - [ ] Write the Devpost text description.
