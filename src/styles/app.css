@@ -973,6 +973,13 @@ button.magnetic:hover::before {
   max-height: 100%;
   overflow-wrap: anywhere;
   user-select: text;
+  /* Newlines between rendered blocks must not show as blank lines. */
+  white-space: normal;
+}
+.markdown-content p,
+.markdown-content th,
+.markdown-content td {
+  white-space: pre-wrap;
 }
 .markdown-content > :first-child {
   margin-top: 0;
