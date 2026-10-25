@@ -70,6 +70,11 @@ export default function MermaidDiagram({ source }: { source: string }) {
   const document = svg
     ? `<!doctype html><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'"><style>body{margin:0;display:grid;place-items:center;color:#3a3b43}svg{max-width:100%;height:auto}</style>${svg}`
     : "";
+  // Size the frame to the diagram's own aspect ratio instead of a fixed height.
+  const box = /viewBox="[-\d.]+ [-\d.]+ ([\d.]+) ([\d.]+)"/.exec(svg);
+  const frame = box
+    ? { maxWidth: +box[1], aspectRatio: `${box[1]} / ${box[2]}` }
+    : undefined;
   return (
     <div ref={host} className="mermaid-diagram">
       {error ? (
@@ -77,7 +82,12 @@ export default function MermaidDiagram({ source }: { source: string }) {
           Mermaid: {error}
         </div>
       ) : svg ? (
-        <iframe title="Mermaid diagram" sandbox="" srcDoc={document} />
+        <iframe
+          title="Mermaid diagram"
+          sandbox=""
+          srcDoc={document}
+          style={frame}
+        />
       ) : (
         <span className="media-loading">Preparing diagram…</span>
       )}
