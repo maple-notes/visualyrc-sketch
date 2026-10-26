@@ -22,6 +22,16 @@ also be linked by dragging between their handles. A Playwright script with the
 installed Chrome dragged a link (11 edges became 12) and dragged the same pair again
 (still 12, no error banner).
 
+An exploratory Playwright pass on the real app (installed Chrome, seeded projects)
+covered: Graph card resize surviving reload; drag link, then undo; export then import
+keeping Graph sizes and edges; deleting content that has links; a blank note, a
+400-character word, a broken Mermaid block and a 30,000-character note; a 820 px wide
+window. Two problems turned up. A 30,000-character note made a 25,189 px Graph card, so
+text cards now grow to 460 px and then scroll inside (the tallest card in the rerun was
+428 px). A long project name was cut off in the header, so it now ends with an ellipsis.
+Everything else passed with no page errors. The 58-assertion Codex browser suite was
+not rerun.
+
 Checks run on this source: `npm run typecheck`, `npm run lint` and `npm run build`
 pass, and `npm test` passes 37 tests in seven files. A new unit test covers the
 saved Graph card size. A Playwright script with the installed Chrome checked

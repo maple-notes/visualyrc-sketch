@@ -34,6 +34,7 @@ type Data = {
   onSelect: (id: string, placementId?: string) => void;
   minHeight?: number;
 };
+const GRAPH_TEXT_CAP = 460;
 type CardNode = Node<Data>;
 function Card({ id, data, selected }: NodeProps<CardNode>) {
   return (
@@ -43,7 +44,15 @@ function Card({ id, data, selected }: NodeProps<CardNode>) {
         (selected ? "selected " : "") +
         (data.content.kind === "image" ? "image-material" : "text-material")
       }
-      style={data.minHeight ? { minHeight: data.minHeight } : undefined}
+      style={
+        data.minHeight
+          ? ({
+              minHeight: data.minHeight,
+              // A long note grows its card up to this height, then scrolls inside it.
+              "--graph-cap": Math.max(GRAPH_TEXT_CAP, data.minHeight) + "px",
+            } as CSSProperties)
+          : undefined
+      }
       role="button"
       tabIndex={0}
       aria-label={(data.content.kind === "text"

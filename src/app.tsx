@@ -697,7 +697,9 @@ export default function App() {
           onClick={() => setModal({ kind: "open" })}
         >
           <FolderOpen size={16} />
-          {project?.name ?? "Local workspace"}
+          <span className="project-name" title={project?.name}>
+            {project?.name ?? "Local workspace"}
+          </span>
         </button>
         <div className="header-spacer" />
         <nav className="mode-switch">

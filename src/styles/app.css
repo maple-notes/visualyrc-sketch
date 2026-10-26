@@ -117,6 +117,13 @@ button.magnetic:hover::before {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+/* The button is a flex box, so the ellipsis must sit on the inner name. */
+.project-name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 .header-spacer {
   flex: 1;
 }
@@ -267,6 +274,9 @@ button.magnetic:hover::before {
 }
 .material .content-text {
   padding: 0 22px 22px;
+}
+.material[style*="--graph-cap"] .content-text {
+  max-height: var(--graph-cap);
 }
 .node-meta {
   padding: 18px 22px 10px;

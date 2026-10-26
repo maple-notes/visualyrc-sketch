@@ -65,6 +65,8 @@ under that instruction. The learner has now provided hands-on feedback; final re
 - [x] Final kick-the-tires exploration and feedback completed by learner — annotated screenshot and editing feedback received2026-10-20; retry after fixes remains pending.
 
 ## Final Review
+- [ ] Learner retry: a very long note no longer makes a huge Graph card (found by the agent's exploratory pass; the card grows to 460 px, then scrolls inside)
+- [ ] Learner retry: a long project name shows an ellipsis in the header instead of being cut off
 - [ ] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
@@ -168,3 +170,11 @@ same pass made the monospace font consistent across browsers.
 - The planning documents `devpost/prd.md` and `devpost/spec.md` were updated to match
   the implementation before the repository was made public.
 - Final readiness, the code tour and 6-ship remain open.
+
+### Final review pass 2026-10-25 (agent-run)
+
+The learner reported no specific problems but suspected unnoticed ones. The agent ran a
+Playwright pass on the real app (installed Chrome, seeded demo projects). Results are in
+`devpost/verification.md`. It found two problems and fixed both: a 30,000-character note
+made a 25,000 px Graph card, and a long project name was cut off in the header. This pass
+is an agent check, not the learner's own exploration.
