@@ -70,18 +70,22 @@ under that instruction. The learner has now provided hands-on feedback; final re
 - [x] Final review complete — feedback resolved and learner confirms ready to ship (confirmed in chat 2026-10-25 after retrying both fixes)
 
 ## Code Tour and App Map
-- [ ] Learning activity complete — real performance evidence prepared; learner follow-up pending
-- [ ] Optional edit and transfer reflection addressed
-- [x] `devpost/app-map.html` generated from finished code, local links checked, opened in Codex browser and provided as a take-home link. The panel-open request is queued until this task is shown.
+- [x] Learning activity complete — focused alternative, recorded as an evidence-based recap, not hands-on practice
+- [x] Optional edit and transfer reflection addressed — the optional edit (`GRAPH_TEXT_CAP` 460 to 360) was offered and declined; the transfer question was not asked because the learner asked to move on to submission
+- [x] `devpost/app-map.html` refreshed from the current code (source commit `07ebfa5`); it has no scripts, so it works offline. Not opened in a browser in this session.
 
-Activity and evidence: agent-only Codex browser acceptance, 58 passing assertions;
-22 passing unit tests. See verification.md for actual evidence and limits.
-Learner hands-on exploration happened on2026-10-20; the learning tour/reflection has not.
-Route and stops: reference route prepared: app.tsx composer/run →
-domain/model.ts postText/place → storage/db.ts saveProject. Not toured with learner.
-Edit outcome: optional learner edit has not been offered during absence.
-Reflection: deferred while user away.
-Activity mode: agent browser verification now, learner review later.
+Activity and evidence: the agent traced one real finding with the learner's stated goal
+(web performance and code optimization). An exploratory pass put a 30,000-character
+note into Graph and measured a 25,189 px card. Capping growth at 460 px gave a 428 px
+card in the same test (`GRAPH_TEXT_CAP` in `src/views/Board.tsx`, the `--graph-cap` rule
+in `src/styles/app.css`, results in `devpost/verification.md`). The learner did not
+trace the code themselves.
+Route and stops: Board.tsx `GRAPH_TEXT_CAP` and `--graph-cap` → app.css
+`.material[style*="--graph-cap"]` → verification.md exploratory pass. The map's
+reference route (app.tsx composer/run → domain/model.ts postText/place → storage/db.ts
+saveProject) was prepared but not toured with the learner.
+Edit outcome: declined.
+Reflection: not asked.
 
 ## Revisions
 

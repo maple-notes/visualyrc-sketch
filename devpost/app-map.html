@@ -167,6 +167,17 @@
         IDs in Canvas and Node IDs in Graph. Final pointer and keyboard
         movements update canonical geometry. Editing text never clones content.
       </p>
+      <p>
+        Graph links come from <code>onConnect</code> in the same file (drag
+        from one card's handle to another's) or from the Link action in
+        <a href="../src/app.tsx">src/app.tsx</a>. Graph card sizes are saved
+        with the Graph position (<code>graph[].width</code> and
+        <code>height</code> in <a href="../src/domain/model.ts">model.ts</a>);
+        <code>GRAPH_TEXT_CAP</code> in <code>Board.tsx</code> and the
+        <code>--graph-cap</code> rule in
+        <a href="../src/styles/app.css">app.css</a> stop a long note from
+        growing its card forever.
+      </p>
     </details>
     <details>
       <summary>Audio and the vertical playhead</summary>
@@ -203,6 +214,13 @@
         <code>work/measure-bundle.mjs</code> compares eager versus deferred
         archive loading. The measured initial gzip reduction is 7,962 bytes.
         This measures payload bytes, not frames per second or network load time.
+      </p>
+      <p>
+        Feed an awkward input and write down a number. A 30,000-character note
+        made a Graph card 25,189 px tall once cards grew with their text.
+        Capping the growth at 460 px brought the tallest card to 428 px in the
+        same test. A pass over odd inputs found it; the unit tests and the
+        happy-path recording had not.
       </p>
     </div>
     <h2>Run and inspect again</h2>
@@ -247,9 +265,9 @@ npm run preview
       </p>
     </section>
     <footer>
-      Snapshot: the 2026-10-20 core build and hands-on review revisions. Source
-      commit is recorded in verification.md. This map can drift after later code
-      changes. No network, script, font service, analytics or private learner
+      Snapshot: source commit 07ebfa5 (2026-10-25), after the hands-on review
+      revisions, Graph drag linking and Graph card sizing. verification.md
+      records the evidence. This map can drift after later code changes. No network, script, font service, analytics or private learner
       information is used by this page.
     </footer>
   </body>
