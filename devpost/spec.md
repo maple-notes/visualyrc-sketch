@@ -67,9 +67,10 @@ CSS tokens: oatmeal #FAFAF7, charcoal #3A3B43, ink #0A0A0A, accent #866490,
 selection #EDE6EF. Both modes light. Flat square text/feed cards and drop shadow
 only. Fine outlined type icons. L grips visible for selected resizable Placement,
 constant screen size with enlarged hit area. Selected fill and keyboard focus
-are separate. Use system sans/mono initially; final font choice remains a design
-detail. Avoid remote font requests. Prototype compact widths 70/100/260px for
-waveform/sections/feed at 1700px; Canvas flexes. Collapse feed to 36px rail.
+are separate. Use the system sans face and one shared mono stack (`--mono`: SF Mono,
+`ui-monospace`, Menlo, Consolas) so labels match across browsers; Chrome ignores
+`ui-monospace`, hence Menlo is named. Avoid remote font requests. Prototype compact widths 70/100/260px for
+waveform/sections/feed at 1700px (the section column later grew to fill a 228 px rail); Canvas flexes. Collapse feed to 36px rail.
 Do not trace erroneous time alignment or incidental edges from generated images.
 
 ## Components
@@ -109,8 +110,17 @@ React Flow rendering ID equals Node.id. GraphPosition is independent of Placemen
 One node per canonical Node; show isolated/unplaced nodes. Initial deterministic
 nonoverlapping grid (proposal), then persist user positions; no force simulation
 on every edit. Related edges undirected; canonical sorted endpoint pair unique.
-Link action chooses source/target explicitly. Location tray enumerates Placements
-and opens chosen page/viewport. Graph does not show image resize controls.
+Two ways to link: drag from a handle on one card to a handle on another (React Flow
+`onConnect`, loose connection mode so either handle starts or ends a link), or use
+the Link action with an explicit target. The target list omits already linked nodes
+and the drag handler ignores self links and existing pairs, so a duplicate never
+reaches `validateProject`. Location tray enumerates Placements and opens chosen
+page/viewport.
+Graph cards are resizable. A text card takes its height from its content
+(`min-height` = saved height or 120 px) and keeps the saved width (default 260 px;
+440 px when the text holds a Mermaid block). An image card keeps a fixed frame
+(default 260 by 220 px) and its aspect ratio while resizing. The size a user sets by
+dragging a corner grip is stored with the Graph position, never on the Node.
 
 ### Audio Player and Section Rail
 Implements `prd.md > Optional Audio and Timed Pages`.
@@ -171,7 +181,8 @@ projectId. Asset includes projectId. IDs are UUIDs; timestamps are ISO strings.
 - Edge: id,source,target; related is the only relation, with undirected pair
   uniqueness validated from sorted endpoint IDs. No redundant pair field.
 - Asset: id,projectId,kind,mime,name,blob,width?,height?,duration? in seconds.
-- graph: {nodeId,x,y}[]; viewports: {pageId,x,y,zoom}[].
+- graph: {nodeId,x,y,width?,height?}[] (size optional, 120/64 px minimum);
+  viewports: {pageId,x,y,zoom}[].
 - Browser view preference: lastPageId,mode,sidebar; audio restores paused.
 - Waveform: 1200 transient peaks regenerated from the original asset.
 Implementation refinement: normalized records above are stored in one project
@@ -300,7 +311,8 @@ release. Escape/cancel abandons preview; arrows adjust 0.1 seconds, Shift adjust
 `MarkdownContent` renders react-markdown10.1.0 + remark-gfm4.0.1 with HTML disabled.
 `MermaidDiagram` lazy-loads mermaid11.16.1, caps input at10,000 characters and200 edges,
 rejects configuration/remote resources/math, and puts output in a scriptless sandbox
-with restrictive CSP. Existing text strings and archive schema remain unchanged.
+with restrictive CSP. The frame takes the diagram's own aspect ratio from the SVG
+`viewBox` (width capped at the viewBox width), not a fixed height. Existing text strings and archive schema remain unchanged.
 
 These exact dependencies were authorized and installed locally. npm audit reports
 one low-severity KaTeX advisory through Mermaid (two package alerts); math input is

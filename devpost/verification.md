@@ -16,6 +16,12 @@ After the learner's hands-on review, four display problems were fixed in commits
 - Mermaid diagrams sat in a frame fixed at 200 px high, and the monospace font
   differed between browsers.
 
+Two more changes followed during demo recording. Linking the same pair twice failed
+with "Duplicate record IDs", so the link list now omits linked nodes. Graph cards can
+also be linked by dragging between their handles. A Playwright script with the
+installed Chrome dragged a link (11 edges became 12) and dragged the same pair again
+(still 12, no error banner).
+
 Checks run on this source: `npm run typecheck`, `npm run lint` and `npm run build`
 pass, and `npm test` passes 37 tests in seven files. A new unit test covers the
 saved Graph card size. A Playwright script with the installed Chrome checked

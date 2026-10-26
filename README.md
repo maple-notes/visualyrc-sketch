@@ -140,5 +140,10 @@ offline for code locations and one concrete learning example.
 [Third-party notices](THIRD_PARTY_NOTICES.md) record the installed dependency licenses.
 The original project code is released under the [MIT License](LICENSE). No reference
 artwork, personal learner profile, or proprietary code from other Visualyrc products
-is included. Human final review, demo video, human-written submission, and any
-publication remain separate from the verified local build.
+is included. The repository holds no audio, video or sample media. Codex and Claude
+Code wrote the code under the owner's direction; the owner reviewed the screens and
+decided the design.
+
+Built for the Devpost "Build With AI: Basics" hackathon with the official Learn Skill
+Pack. The repository root keeps the early drafts of `scope.md`, `prd.md` and `spec.md`;
+the approved versions are in `devpost/`.

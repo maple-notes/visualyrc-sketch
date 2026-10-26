@@ -163,4 +163,8 @@ same pass made the monospace font consistent across browsers.
 - Verified with typecheck, lint, build and 37 unit tests. A Playwright script
   checked Graph card resize and growth. The Codex in-app browser suite was not
   rerun; verification.md records the scope.
+- Two later fixes: the Graph link list hides already linked nodes (`ad62365`), and
+  Graph cards link by dragging between handles (`423cb71`).
+- The planning documents `devpost/prd.md` and `devpost/spec.md` were updated to match
+  the implementation before the repository was made public.
 - Final readiness, the code tour and 6-ship remain open.

@@ -67,8 +67,10 @@ was approved in the planning review. Do not implement ambiguous single Delete be
 ### Graph Relationships and Navigation
 One visible graph item per canonical Node, regardless of placement count. Text/image
 are content types; feed origin is metadata. Create/remove undirected related edges
-by explicit Link action; prevent self-links/duplicate pairs. No automatic semantic
-labels or inferred links. Select to show locations, then choose a page to focus
+by dragging from one card's handle to another's or by the explicit Link action;
+prevent self-links/duplicate pairs (the UI never offers or accepts them). No automatic
+semantic labels or inferred links. Cards can be resized in Graph; text cards also grow
+to fit their text, and the chosen size is kept per project. Select to show locations, then choose a page to focus
 one placement. Unplaced content can be added to the current page.
 Acceptance: cross-page edge survives reload and placement deletion.
 Source: `scope.md > The Unique Kernel`.
@@ -92,7 +94,9 @@ section action; optional Follow off initially, follows timeline only. Playback n
 moves Canvas or changes pages automatically. These semantics were approved in the planning review.
 Ranges: at most one per page, nonoverlapping, gaps/untimed pages allowed;
 planning sections may extend beyond audio duration into silent planning space;
-edit start/end in fields or drag the top/bottom section grips. Accepting audio
+edit start/end in fields or drag the top/bottom section grips. The rail is 228 px
+wide; a section label drops its page number, then its time range, then its buttons
+beside the title, as the section gets shorter, so no text overlaps. Accepting audio
 distributes existing pages equally in page order; replacement confirms redistribution
 and preserves content. Invalid/unsupported file leaves the prior source intact.
 Acceptance: known timestamps match waveform/range/playhead; no-audio loop still works.
@@ -156,7 +160,8 @@ not established; this draft is presented as Markdown without claiming that prefe
   validated ingestion as the chooser; each adds one Node and Saezutter post.
 - Text source supports Markdown/GFM and fenced Mermaid. No raw HTML or remote image
   fetches. Diagram configuration, external resources and math are disabled; errors
-  stay visible without changing source. Diagrams render lazily in a sandbox.
+  stay visible without changing source. Diagrams render lazily in a sandbox and
+  keep their own aspect ratio at the card width.
 - The left rail owns its collapse/reopen control; Saezutter remains a collapsible
   sidebar with no duplicate Canvas toggle. Both views remain light.
 
