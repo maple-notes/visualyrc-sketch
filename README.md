@@ -39,7 +39,9 @@ their ports differ. Export/import a `.vsketch` file to transfer a project betwee
 1. Write a note in Saezutter and choose **Place**, or drag the post into Canvas.
 2. Add a page and place the same post there. Edit either reference; both show the
    same content, while their positions and sizes remain independent.
-3. Switch to Graph, select an item, choose a link target, and use **Link nodes**.
+3. Switch to Graph and drag from the dot on one card's edge to a dot on another
+   card to link them. Selecting a card, choosing a link target, and using
+   **Link nodes** does the same from the keyboard.
    **Open in page** returns to a particular placement.
 4. Use **Export project** to download a portable `.vsketch` backup. Import creates
    a new project, preserving the current project.

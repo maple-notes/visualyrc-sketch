@@ -1086,6 +1086,7 @@ export default function App() {
                 }
                 onDrop={(id, x, y) => !readOnly && addPlacement(id, x, y)}
                 onFilesDrop={dropImages}
+                onLink={(a, b) => run((p) => link(p, a, b))}
                 onViewport={(v) => {
                   if (readOnly) return;
                   const old = current.current?.viewports.find(

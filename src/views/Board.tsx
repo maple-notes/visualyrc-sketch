@@ -12,6 +12,8 @@ import {
   Handle,
   Position,
   NodeResizer,
+  ConnectionMode,
+  ConnectionLineType,
   useReactFlow,
   Background,
   BackgroundVariant,
@@ -66,7 +68,11 @@ function Card({ id, data, selected }: NodeProps<CardNode>) {
         onResizeEnd={(_, p) => data.onSize(id, p.width, p.height, p.x, p.y)}
       />
       {data.graph && (
-        <Handle type="target" position={Position.Left} isConnectable={false} />
+        <Handle
+          type="target"
+          position={Position.Left}
+          isConnectable={!data.readOnly}
+        />
       )}
       {(data.content.kind === "text" || data.graph) && (
         <div className="node-meta">
@@ -76,7 +82,11 @@ function Card({ id, data, selected }: NodeProps<CardNode>) {
       )}
       <ContentCard content={data.content} />
       {data.graph && (
-        <Handle type="source" position={Position.Right} isConnectable={false} />
+        <Handle
+          type="source"
+          position={Position.Right}
+          isConnectable={!data.readOnly}
+        />
       )}
     </div>
   );
@@ -95,6 +105,7 @@ export type BoardProps = {
   onDrop: (nodeId: string, x: number, y: number) => void;
   onFilesDrop: (files: File[], x: number, y: number) => void;
   onViewport: (v: Viewport) => void;
+  onLink: (source: string, target: string) => void;
 };
 function Inner(props: BoardProps) {
   const { project, pageId, mode } = props;
@@ -247,7 +258,20 @@ function Inner(props: BoardProps) {
         maxZoom={4}
         defaultViewport={defaultViewport}
         nodesDraggable={!props.readOnly}
-        nodesConnectable={false}
+        nodesConnectable={graph && !props.readOnly}
+        // Either handle can start or end a link; relationships are undirected.
+        connectionMode={ConnectionMode.Loose}
+        connectionLineType={ConnectionLineType.Straight}
+        onConnect={(c) => {
+          // link() rejects self and duplicate pairs, so drop them here.
+          const linked = project.edges.some(
+            (e) =>
+              (e.source === c.source && e.target === c.target) ||
+              (e.source === c.target && e.target === c.source),
+          );
+          if (c.source !== c.target && !linked)
+            props.onLink(c.source, c.target);
+        }}
         deleteKeyCode={null}
         panOnScroll
         zoomOnScroll={false}
