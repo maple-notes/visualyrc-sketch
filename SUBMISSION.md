@@ -28,7 +28,7 @@ Submissions close on October 26, 2026 at 5:00 pm Eastern Time.
 - [x] README with installation steps and local run instructions.
 - [ ] Register and accept the rules on Devpost.
 - [x] Add an open source license file (MIT).
-- [ ] Make the GitHub repository public.
+- [x] Make the GitHub repository public (public on 2026-10-25; the repo page, LICENSE and the planning documents load without signing in; GitHub detects the MIT license).
 - [ ] Record the demo video, under three minutes, and publish it on YouTube or Vimeo.
 - [ ] Write the Devpost text description.
 - [ ] Check the repository and video for secrets, personal information and
