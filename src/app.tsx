@@ -1260,7 +1260,16 @@ export default function App() {
                       >
                         <option value="">Choose node to link…</option>
                         {project.nodes
-                          .filter((n) => n.id !== selected)
+                          .filter(
+                            (n) =>
+                              n.id !== selected &&
+                              // An existing link would make a duplicate edge.
+                              !project.edges.some(
+                                (e) =>
+                                  (e.source === selected && e.target === n.id) ||
+                                  (e.target === selected && e.source === n.id),
+                              ),
+                          )
                           .map((n) => (
                             <option key={n.id} value={n.id}>
                               {n.kind === "text"
